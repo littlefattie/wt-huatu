@@ -1,0 +1,345 @@
+title: Chinese Bagua
+desc: The first example to draw Chinese Bagua using WT Huatu
+config:
+  printUnusedModule: yes
+  # showBBox: lime
+vars:
+  kB: 0.5522847498307936
+  rOut: 100
+  kR: 0.1
+  rDot: kR * rOut
+  kBarLen: 0.5
+  barLen: rOut * kBarLen
+  lDot: rOut * 0.5
+  barDist: rOut * 0.5
+  barWidth: rOut * 0.15
+  barSpace: barWidth * 0.8
+  barGapWidth: barSpace * 0.8
+  barLength: barWidth * 6
+  splitterWidth: barWidth * 1.414
+  hBar1Low: rOut + barDist
+  hBar1High: hBar1Low + barWidth
+  hBar2Low:  hBar1High + barSpace
+  hBar2High: hBar2Low + barWidth
+  hBar3Low:  hBar2High + barSpace
+  hBar3High: hBar3Low + barWidth
+  rBoundary: hBar3High / cos(pi / 8) * 1.2
+  rBoundaryPolygon: rBoundary / cos (pi / 8)
+
+viewBetween: -rBoundaryPolygon, -rBoundaryPolygon ; rBoundaryPolygon, rBoundaryPolygon
+
+points:
+  pCenter: 0,0
+  pBlack: pCenter.x, pCenter.y - lDot
+  pWhite: pCenter.x, pCenter.y + lDot
+  pTop: pCenter.x, pCenter.y - rOut
+  pDown: pCenter.x, pCenter.y + rOut
+  pCtrl1: pTop.x - rOut * kB, pTop.y
+  pCtrl2: pCenter.x - rOut * kB, pCenter.y
+shapes:
+  cOut:   circle; pCenter; rOut
+  cBlack: circle; pBlack; rDot
+  cWhite: circle; pWhite; rDot
+  arcUp:    arc; pTop;    rOut/2; rOut/2; 0; ccw; large; pCenter
+  arcDown:  arc; pCenter; rOut/2; rOut/2; 0; cw;  large; pDown
+  arcLeft:  arc; pDown; rOut; rOut; 0; cw; large; pTop
+  arcRight: arc; pDown; rOut; rOut; 0; ccw; large; pTop
+  lrefH11: line; pTop.x, -hBar1Low;   0
+  lrefH12: line; pTop.x, -hBar1High;  0
+  lrefH21: line; pTop.x, -hBar2Low;   0
+  lrefH22: line; pTop.x, -hBar2High;  0
+  lrefH31: line; pTop.x, -hBar3Low;   0
+  lrefH32: line; pTop.x, -hBar3High ; 0
+  lrefV11: line; pCenter.x - barGapWidth / 2, 0; 90
+  lrefV12: line; pCenter.x + barGapWidth / 2, 0; 90
+  lrefV21: line; pCenter.x - barLength / 2, 0; 90
+  lrefV22: line; pCenter.x + barLength / 2, 0; 90
+  lrefRayL:  line; pCenter.x, pCenter.y - splitterWidth / 2; -90 - 22.5
+  lrefRayR:  line; pCenter.x, pCenter.y - splitterWidth / 2; -90 + 22.5
+  cBoundary: circle; pCenter; rBoundary
+  plgBoundary: plgn; 8; pCenter; rBoundaryPolygon; 360 / 8 / 2
+  testBezier: bezier3; pTop; pCtrl1; pCtrl2; pCenter
+xpoints:
+  pbar1L1: lrefH11; lrefRayL;
+  pbar1L2: lrefH12; lrefRayL;
+  pbar1R1: lrefH11; lrefRayR;
+  pbar1R2: lrefH12; lrefRayR;
+  pbar1ML1: lrefV11; lrefH11;
+  pbar1ML2: lrefV11; lrefH12;
+  pbar1MR1: lrefV12; lrefH11;
+  pbar1MR2: lrefV12; lrefH12;
+  pbar2L1: lrefH21; lrefRayL
+  pbar2L2: lrefH22; lrefRayL
+  pbar2R1: lrefH21; lrefRayR
+  pbar2R2: lrefH22; lrefRayR
+  pbar2ML1: lrefV11; lrefH21;
+  pbar2ML2: lrefV11; lrefH22;
+  pbar2MR1: lrefV12; lrefH21;
+  pbar2MR2: lrefV12; lrefH22;
+  pbar3L1: lrefH31; lrefRayL
+  pbar3L2: lrefH32; lrefRayL
+  pbar3R1: lrefH31; lrefRayR
+  pbar3R2: lrefH32; lrefRayR
+  pbar3ML1: lrefV11; lrefH31;
+  pbar3ML2: lrefV11; lrefH32;
+  pbar3MR1: lrefV12; lrefH31;
+  pbar3MR2: lrefV12; lrefH32;
+  pbar1EndL1: lrefV21; lrefH11;
+  pbar1EndL2: lrefV21; lrefH12;
+  pbar2EndL1: lrefV21; lrefH21;
+  pbar2EndL2: lrefV21; lrefH22;
+  pbar3EndL1: lrefV21; lrefH31;
+  pbar3EndL2: lrefV21; lrefH32;
+  pbar1EndR1: lrefV22; lrefH11;
+  pbar1EndR2: lrefV22; lrefH12;
+  pbar2EndR1: lrefV22; lrefH21;
+  pbar2EndR2: lrefV22; lrefH22;
+  pbar3EndR1: lrefV22; lrefH31;
+  pbar3EndR2: lrefV22; lrefH32;
+shapes2:
+  bar1Left: polygon; pbar1L1; pbar1L2; pbar1ML2; pbar1ML1
+  bar1Right: polygon; pbar1R1; pbar1R2; pbar1MR2; pbar1MR1
+  bar1Whole: polygon; pbar1L1; pbar1L2; pbar1R2; pbar1R1
+  bar2Left: polygon; pbar2L1; pbar2L2; pbar2ML2; pbar2ML1
+  bar2Right: polygon; pbar2R1; pbar2R2; pbar2MR2; pbar2MR1
+  bar2Whole: polygon; pbar2L1; pbar2L2; pbar2R2; pbar2R1
+  bar3Left: polygon; pbar3L1; pbar3L2; pbar3ML2; pbar3ML1
+  bar3Right: polygon; pbar3R1; pbar3R2; pbar3MR2; pbar3MR1
+  bar3Whole: polygon; pbar3L1; pbar3L2; pbar3R2; pbar3R1
+  bar1DisLeft:  polygon; pbar1EndL1; pbar1EndL2; pbar1ML2; pbar1ML1;
+  bar1DisRight: polygon; pbar1EndR1; pbar1EndR2; pbar1MR2; pbar1MR1
+  bar1DisWhole: polygon; pbar1EndL1; pbar1EndL2; pbar1EndR2; pbar1EndR1
+  bar2DisLeft:  polygon; pbar2EndL1; pbar2EndL2; pbar2ML2; pbar2ML1;
+  bar2DisRight: polygon; pbar2EndR1; pbar2EndR2; pbar2MR2; pbar2MR1
+  bar2DisWhole: polygon; pbar2EndL1; pbar2EndL2; pbar2EndR2; pbar2EndR1;
+  bar3DisLeft:  polygon; pbar3EndL1; pbar3EndL2; pbar3ML2; pbar3ML1;
+  bar3DisRight: polygon; pbar3EndR1; pbar3EndR2; pbar3MR2; pbar3MR1
+  bar3DisWhole: polygon; pbar3EndL1; pbar3EndL2; pbar3EndR2; pbar3EndR1;
+  tri1: tri; pbar1EndL1; pbar3ML2; pbar2EndR2
+  rect1: rect; pbar2ML1; 50; 50
+  pln: line; pbar3EndL2; pbar3EndR1; pbar2EndR2; pbar1EndR1; pbar1EndL1
+  ell1: ell; pbar1ML1; 30; 60; -25
+cpoints2:
+  b3third: testBezier; 0.33
+  arcFourth: arcLeft; 0.25
+  arcHalf: arcLeft; 0.5
+  cBounP: cBoundary; -52
+  pEll1: ell1; -25
+  pEll2: ell1; 77
+  pPln: pln; 2
+  pPln2: pln; 2; 0.4
+  pPln3: pln; 3
+  pPlg1: plgBoundary; 3
+  pPlg2: plgBoundary; 3; 0.45
+  pTri1: tri1; 2
+  pTri2: tri1; cIn
+  pTri3: tri1; cOut
+  pTri4: tri1; cGravity
+  pTri5: tri1; 3; 0.25
+  pTri6: tri1; C
+  pRect1: rect1; nw
+  pRect2: rect1; ne
+  pRect3: rect1; nm
+  pRect4: rect1; em
+  pRect5: rect1; w; 0.72
+  pRect6: rect1; E; 0.22  
+paths:
+  partUp:
+    - arcUp
+    - arcDown
+    - arcRight
+    - close
+  partDown:
+    - arcUp
+    - arcDown
+    - arcLeft
+    - close
+blocks:
+  qianCont:
+    - bar1Whole
+    - bar2Whole
+    - bar3Whole
+  qianDis:
+    - bar1DisWhole
+    - bar2DisWhole
+    - bar3DisWhole
+  xunCont:
+    - bar1Whole
+    - bar2Whole
+    - bar3Left
+    - bar3Right
+  xunDis:
+    - bar1DisWhole
+    - bar2DisWhole
+    - bar3DisLeft
+    - bar3DisRight
+  kanCont:
+    - bar1Left
+    - bar1Right
+    - bar2Whole
+    - bar3Left
+    - bar3Right
+  kanDis:
+    - bar1DisLeft
+    - bar1DisRight
+    - bar2DisWhole
+    - bar3DisLeft
+    - bar3DisRight
+  yinCont:
+    - bar1Whole
+    - bar2Left
+    - bar2Right
+    - bar3Left
+    - bar3Right
+  yinDis:
+    - bar1DisWhole
+    - bar2DisLeft
+    - bar2DisRight
+    - bar3DisLeft
+    - bar3DisRight
+  kunCont:
+    - bar1Left
+    - bar1Right
+    - bar2Left
+    - bar2Right
+    - bar3Left
+    - bar3Right
+  kunDis:
+    - bar1DisLeft
+    - bar1DisRight
+    - bar2DisLeft
+    - bar2DisRight
+    - bar3DisLeft
+    - bar3DisRight
+  zhenCont:
+    - bar1Left
+    - bar1Right
+    - bar2Left
+    - bar2Right
+    - bar3Whole
+  zhenDis:
+    - bar1DisLeft
+    - bar1DisRight
+    - bar2DisLeft
+    - bar2DisRight
+    - bar3DisWhole
+  liCont:
+    - bar1Whole
+    - bar2Left
+    - bar2Right
+    - bar3Whole
+  liDis:
+    - bar1DisWhole
+    - bar2DisLeft
+    - bar2DisRight
+    - bar3DisWhole
+  duiCont:
+    - bar1Left
+    - bar1Right
+    - bar2Whole
+    - bar3Whole
+  duiDis:
+    - bar1DisLeft
+    - bar1DisRight
+    - bar2DisWhole
+    - bar3DisWhole
+  barsCont:
+    - qianCont; rotate; 0
+    - xunCont; rotate; 45
+    - kanCont; rotate; 90
+    - yinCont; rotate; 135
+    - kunCont; rotate; 180
+    - zhenCont; rotate; 225
+    - liCont; rotate; 270
+    - duiCont; rotate; 315
+  barsDis:
+    - qianDis; rotate; 0
+    - xunDis; rotate; 45
+    - kanDis; rotate; 90
+    - yinDis; rotate; 135
+    - kunDis; rotate; 180
+    - zhenDis; rotate; 225
+    - liDis; rotate; 270
+    - duiDis; rotate; 315
+  yinyangFish:
+    - partUp; fill; white;
+    - partDown; fill, black;
+    - cBlack; fill, black
+    - cWhite; fill, white
+    - cOut; stroke, black, 1; fill, none
+  cpTri:
+    - tri1; fill; none; stroke; blue
+    - circ; pTri1; 2 |||
+    - circ; pTri2; 2 |||
+    - circ; pTri3; 4 |||
+    - circ; pTri4; 1 |||
+    - circ; pTri5; 3 |||
+    - circ; pTri6; 2 |||
+  cpRect:
+    - rect1; fill; none; stroke; brown
+    - circ; pRect1; 2 |||
+    - circ; pRect2; 2 |||
+    - circ; pRect3; 2 |||
+    - circ; pRect4; 2 |||
+    - circ; pRect5; 2 |||
+    - circ; pRect6; 2 |||
+  cpArc:
+    # - testBezier; fill; none; stroke; maroon
+    - arcLeft; fill; none; stroke; yellow
+    # - circ; b3third; 4   |||
+    - circ; arcFourth; 4 |||
+    - circ; arcHalf; 2 |||
+    # - cBoundary; stroke; yellow; fill;none
+    # - circ; cBounP; 3    |||
+  cpEll:
+    - ell1; fill; none; stroke; purple
+    - circ; pEll1; 2 |||
+    - circ; pEll2; 2 |||
+  cpPlns:
+    - pln; fill; none; stroke; black
+    - circ; pPln; 2 |||
+    - circ; pPln2; 2 |||
+    - circ; pPln3; 1 |||
+  cpPlgs:
+    - plgBoundary; fill; none; stroke;  skyblue
+    - circ; pPlg1; 2 |||
+    - circ; pPlg2; 2     |||
+layers:
+  center:
+    - cOut; 
+  cpointTest:
+    # - cpTri; fill; aqua
+    # - cpRect; fill; purple
+    - cpArc; fill; red
+    # - cpEll; fill; lime
+    # - cpPlns; fill; grey
+    # - cpPlgs; fill; magenta
+draw:
+  - desc; This is some very good Description for the Draw job.
+  - viewbox ; -100, -100; 200; 200
+  - yinyangFish
+  # - barsDis; fill, red;
+  # - cBoundary; stroke, red; fill,none;
+  - plgBoundary; stroke; black; 0.5; fill, none;
+  # - circle; pCenter; rBoundaryPolygon; ||| stroke, red; fill, none;
+  - barsDis; fill; black;
+  # - yinyangFish; move; rBoundaryPolygon, 0
+  # - cpointTest
+
+jobs:
+  cont:
+    desc: Draw the Bagua Shape in Continuous mode
+    viewBox: -100, -100; 200, 200
+    drawings:
+      - yinyangFish
+      - barsCont
+  dis:
+    desc: Draw the Bagua shape in Discontinued mode
+    width: 400
+    height: 300
+    size: 1000, 2000
+    config:
+      showBBox: true
+    drawings:
+      - barsDis; fill, #c00
+      - yinyangFish

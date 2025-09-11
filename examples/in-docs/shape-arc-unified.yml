@@ -1,0 +1,77 @@
+# Example WT-HUATU design file
+
+
+# --- Vars ------
+vars:
+  r: 70
+  rx: r * 1.5
+  ry: r
+  xDist: 400
+  yDist: 250
+  
+markers:
+  arrow1: arrow-simple; smooth; size; 8;
+
+# --- Points ------
+points:
+  
+  pStart: 0, 60
+  pEnd: 80, 0
+
+
+# --- Shapes ------
+shapes:
+  arc1: arc; pStart; rx; ry;0; cw;  large; pEnd;
+  arc2: arc; pStart; rx; ry;0; cw;  small; pEnd;
+  arc3: arc; pStart; rx; ry;0; ccw; large; pEnd;
+  arc4: arc; pStart; rx; ry;0; ccw; small; pEnd;
+  arcAux1: arc; pStart.x - 20, pStart.y - 20; rx * 0.7; ry * 0.7; 0; cw; large; pEnd.x - 40, pEnd.y - 30;
+  arcAux2: arc; pStart.x + 11, pStart.y - 6; rx * 0.8; ry * 0.8; 0; cw; small; pEnd.x - 11, pEnd.y + 12;
+  arcAux3: arc; pStart.x + 25, pStart.y + 16; rx * 0.7; ry * 0.7; 0; ccw; large; pEnd.x + 12, pEnd.y + 22;
+  arcAux4: arc; pStart.x + 12, pStart.y - 16; rx * 0.9; ry * 1.1; 0; ccw; small; pEnd.x - 12, pEnd.y - 22;
+cpoints:
+
+
+blocks:
+  arcAll:
+    - arc1;
+    - arc2;
+    - arc3;
+    - arc4;
+  bg:
+    - arcAll; stroke, 1, grey; dash; 3,3; fill,none;
+    - circ; pStart; 6; ||| fill, red;
+    - circ; pEnd; 6; ||| fill, orange;
+    - label; pStart; anchor; tr; w; 60; offset; -4, 12  ||| pStart
+    - label; pEnd;   anchor; bl; w; 60; offset; 2, -12; ||| pEnd
+  cwLarge:
+    - bg
+    - arc1; stroke, 6, royalblue; opaque; 0.5; fill, none;
+    - arcAux1; stroke, 1, black; fill, none; marker; arrow1;
+    - label; arcAux1.m; w; 60; align; right; ||| cw
+    - label; arc1.m; w; 60; anchor; br;h;25;||| large
+  cwSmall:
+    - bg
+    - arc2; stroke, 6, royalblue; opaque; 0.5; fill, none;
+    - arcAux2; stroke, 1, black; fill, none; marker; arrow1;
+    - label; arcAux2.m; w; 20; align; right; offset; 2, -5 ||| cw
+    - label; arc2.m; w; 60; anchor; br;h;25;||| small
+  ccwLarge:
+    - bg
+    - arc3; stroke, 6, royalblue; opaque; 0.5; fill, none;
+    - arcAux3; stroke, 1, black; fill, none; marker; arrow1;
+    - label; arcAux3.m; w; 30; align; right; anchor; br; offset; -10,0 ||| ccw
+    - label; arc3.m; w; 60; anchor; tl;h;25;||| large
+  ccwSmall:
+    - bg
+    - arc4; stroke, 6, royalblue; opaque; 0.5; fill, none;
+    - arcAux4; stroke, 1, black; fill, none; marker; arrow1;
+    - label; arcAux4.m; w; 30; align; right; anchor; br; offset; -10,0 ||| ccw
+    - label; arc4.m; w; 60; anchor; tl;h;25;||| small
+
+# --- Draw --------
+draw:
+  - cwLarge
+  - cwSmall; move; xDist, 0;
+  - ccwLarge; move; 0, yDist;
+  - ccwSmall; move; xDist, yDist

@@ -1,0 +1,36 @@
+
+/** 
+ * Examples of WtHuatu marks, these are SVG styles, will be generated figure by figure dynamically
+ * and injected into the <defs /> part in SVG final rendering.
+ */
+
+.wthuatu-label-box {
+  fill: lightyellow;
+  stroke: red;
+  stroke-width: 0.2;
+}
+
+.wthuatu-mark-position {
+  fill: blue;
+}
+
+.wthuatu-mark-centers {
+  /** Normally, the center mark is a big Plus */
+  stroke: gray;
+  stroke-width: 0.1;
+}
+
+.wthuatu-mark-bezier-control {
+  /** Normally, the center mark is a big Plus */
+  stroke: aqua;
+  stroke-width: 0.1;
+  fill: aqua;
+}
+
+.wthuatu-mark-named-points {
+  fill: blue;
+}
+
+.wthuatu-mark-path-points {
+  fill: magenta;
+}

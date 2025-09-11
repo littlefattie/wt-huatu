@@ -1,0 +1,45 @@
+
+# --- Vars ------
+vars:
+  rectW: 80
+  rectH: 60
+
+# --- Points ------
+points:
+  pCenter: 0,0
+  pAnchor: -50, -40
+  pFar: 60, 30
+
+# --- Shapes ------
+shapes:
+  rect1:rect; bycenter; pCenter; rectW; rectH;
+  rect2:rect; pAnchor; pFar;
+  rect3:rect; pAnchor; rectW; rectH
+
+blocks:
+  blk1:
+    - rect1; stroke, 2, black; fill, none;
+    - circ; pCenter; 4; ||| fill, red;
+    - label; pCenter; anchor; tm; w; 60; ||| $P_{center}$
+    - dimMark; rect1.sw; rect1.se; lw; 20; label; $W$
+    - dimMark; rect1.se; rect1.ne; lw; 20; label; $H$
+
+  blk2:
+    - rect2; stroke, 2, black; fill, none;
+    - circ; pAnchor; 4; ||| fill, red;
+    - circ; pFar;    4; ||| fill, red;
+    - label; pAnchor; anchor; bm; w; 60; h; 24;  ||| $(x_1, y_1)$
+    - label; pFar; anchor; tm; w; 60; h; 24; ||| $(x_2, y_2)$
+
+  blk3:
+    - rect3; stroke, 2, black; fill, none;
+    - circ; pAnchor; 4; ||| fill, red;
+    - label; pAnchor; anchor; bm; w; 60; h; 24;  ||| $(x_1, y_1)$
+    - dimMark; rect3.sw; rect3.se; lw; 20; label; $W$
+    - dimMark; rect3.se; rect3.ne; lw; 40; label; $H$
+
+# --- Draw --------
+draw:
+  - blk2;
+  - blk3; move; 240, 0;
+  - blk1; move; 450, 0;

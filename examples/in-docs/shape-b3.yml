@@ -1,0 +1,26 @@
+# examples of 3rd bezier
+
+points:
+  pStart: -20, -20
+  pEnd:   320, 180
+  pCtrl1: pStart.x + 320, pStart.y - 140
+  pCtrl2: pEnd.x - 100, pEnd.y + 40
+
+blocks:
+  refLines:
+    - line; pStart; pCtrl1; |||
+    - line; pCtrl2; pEnd; |||
+  refAll:
+    - refLines; stroke, 1, aqua
+    - circ; pStart; 6; ||| fill, aqua
+    - circ; pEnd; 6;   ||| fill, aqua
+    - circ; pCtrl1; 6;  ||| fill, magenta
+    - circ; pCtrl2; 6;  ||| fill, magenta
+  
+draw:
+  - refAll;
+  - b3; pStart; pCtrl1; pCtrl2; pEnd ||| stroke, 6, black; fill, none; opaque; 0.2;
+  - label; pStart; anchor; tr; w; 70; ||| pStart
+  - label; pEnd; anchor; ml; w; 70; ||| pEnd
+  - label; pCtrl1; anchor; bl; w; 70; color; magenta ||| pCtrl1
+  - label; pCtrl2; anchor; tr; w; 70; color; magenta ||| pCtrl2

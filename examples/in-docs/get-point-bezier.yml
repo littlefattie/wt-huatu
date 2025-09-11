@@ -1,0 +1,62 @@
+
+points:
+  pStart: -20, -20
+  pEnd:   320, 180
+  pCtrl1: pStart.x + 320, pStart.y - 140
+  pCtrl2: pEnd.x - 100, pEnd.y + 40
+
+shapes:
+  b2Curve: b2; pStart; pCtrl1; pEnd;
+  b3Curve: b3; pStart; pCtrl1; pCtrl2; pEnd;
+
+cpoints:
+  cpB2s:    b2Curve; s    # `s` could be `start`
+  cpB2e:    b2Curve; e    # `e` could be `end`
+  cpB2m:    b2Curve; m    # `m` could be `mid` or `middle`
+  cpB2p666: b2Curve;0.666
+  cpB3s:    b3Curve; s
+  cpB3e:    b3Curve; e
+  cpB3m:    b3Curve; m
+  cpB3p666: b3Curve;0.666
+
+pointSeries:
+  psB2: cpB2s; cpB2m; cpB2e;
+  psB3: cpB3s; cpB3m; cpB3e;
+
+blocks:
+  refLinesB2:
+    - line; pStart; pCtrl1; ||| stroke, 1, aqua;
+    - line; pCtrl1; pEnd; ||| stroke, 1, aqua;    
+    - circ; pCtrl1; 6;  ||| fill, magenta
+    - label; pCtrl1; anchor; bl; w; 70; color; magenta ||| pCtrl
+    - label; cpB2m; anchor; tr; w; 100; h; 20; offset; -50, 80 ||| Bezier 2
+  refLinesB3:
+    - line; pStart; pCtrl1; ||| stroke, 1, aqua;
+    - line; pCtrl2; pEnd; ||| stroke, 1, aqua;    
+    - circ; pCtrl1; 6;  ||| fill, magenta
+    - circ; pCtrl2; 6;  ||| fill, magenta
+    - label; pCtrl1; anchor; bl; w; 70; color; magenta ||| pCtrl1
+    - label; pCtrl2; anchor; tr; w; 70; color; magenta ||| pCtrl2
+    - label; cpB3m; anchor; tr; w; 100; h; 20; offset; -50, 20 ||| Bezier 3
+  blkB2:
+    - b2Curve; stroke, 3, black; fill,none;
+    - psB2; 6; black;
+    - circ;  cpB2p666; 6 ||| fill, red;
+    - label; cpB2p666; anchor; tr; w; 70; ||| 0.666
+    - label; cpB2s; anchor; mr; w; 40; ||| s
+    - label; cpB2e; anchor; mr; w; 40; ||| e
+    - label; cpB2m; anchor; tr; w; 40; ||| m
+    - refLinesB2
+  blkB3:
+    - b3Curve; stroke, 3, black; fill,none;
+    - psB3; 6; black;
+    - circ;  cpB3p666; 6 ||| fill, red;
+    - label; cpB3p666; anchor; tr; w; 70; ||| 0.666
+    - label; cpB3s; anchor; mr; w; 40; ||| s
+    - label; cpB3e; anchor; ml; w; 30; ||| e
+    - label; cpB3m; anchor; tr; w; 40; ||| m
+    - refLinesB3
+
+draw:
+  - blkB2
+  - blkB3; move; 360, 0;

@@ -1,0 +1,21 @@
+
+vars:
+  a: 3
+  b: 4
+
+# --- Points ------
+points:
+  pA: 100, 30
+  pB: 0, -90
+  pC: -80, 15
+
+# --- Shapes ------
+shapes:
+  tri1: tri; pA; pB; pC;
+
+# --- Draw --------
+draw:
+  - tri1; stroke, 2, black; fill, none; linejoin; round;  
+  - label; pA; anchor; tl; w; 30; left; h; 20; ||| $P_a$
+  - label; pB; anchor; bm; w; 30; right; ||| $P_b$
+  - label; pC; anchor; mr; w; 30; right; ||| $P_c$

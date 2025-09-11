@@ -1,0 +1,102 @@
+# Example WT-HUATU design file
+# --- Vars ------
+vars:
+  rC: 60
+  tStroke: rC * 0.185
+  barOffset: rC * 0.37
+  barLen: rC * 1.45
+
+# --- Points ------
+points:
+  pCIO: (0,0)
+  pC: (0, pCIO.y - tStroke*0.4)
+  p60d:   pC.x + tStroke/2 * dcos(30), pC.y + tStroke/2 * dsin(30)
+  p60u:   pC.x - tStroke/2 * dcos(30), pC.y - tStroke/2 * dsin(30)
+  p120u:  pC.x + tStroke/2 * dcos(30), pC.y - tStroke/2 * dsin(30)
+  p120d:  pC.x - tStroke/2 * dcos(30), pC.y + tStroke/2 * dsin(30) 
+  pHup:   pC.x, pC.y - tStroke / 2
+  pHdown: pC.x, pC.y + tStroke / 2
+  pBarCenter: pC.x, pC.y + barOffset
+
+# --- Shapes ------
+shapes:
+  cI: circle; pCIO; rC - tStroke / 2
+  cO: circle; pCIO; rC + tStroke / 2
+  l60d: line; p60d; -60
+  l60u: line; p60u; -60
+  l120u: line; p120u; -120
+  l120d: line; p120d; -120
+  rectBar: rect; bycenter; pBarCenter; barLen; tStroke
+  lHbarU: line; pHup; 0
+  lHbarD: line; pHdown; 0
+  lBarTop: line; rectBar.ne; 0
+  lVleft: line; pC.x - tStroke/2, pC.y; 90
+  lVright: line; pC.x + tStroke/2, pC.y; 90
+xpoints:
+  pxOe: lHbarD; cO; e
+  pxOe2: lBarTop; cO; e
+  pxIe: lHbarU; cI; e
+  pxIe2: lBarTop; cI; e
+  pxIw: lHbarU; cI; w
+  pxIw2: lHbarD; cI; w
+  pxVl: lVleft; cI; s
+  pxVr: lVright; cI; s
+  pxHl: lVleft; lHbarD;
+  pxHr: lVright; lHbarD;
+  pxI1: l60d;  cI; n
+  pxI2: l60u;  cI; n
+  pxI3: l120u; cI; n
+  pxI4: l120d; cI; n
+  pxC1: lHbarU; l60d;
+  pxC2: l60u; l120u;
+  pxC3: l120d; lHbarU;
+  pxBarNr: rectBar; lVright; n
+  pxBarNl: rectBar; lVleft; n
+  pxBarSr: rectBar; lVright; s
+  pxBarSl: rectBar; lVleft; s
+paths:
+  logo:
+    - arc; pxOe; cO.r; cO.r; 0; ccw; large; pxOe2;
+    - line; pxOe2; pxIe2
+    - arc; pxIe2; cI.r; cI.r; 0; cw; small; pxVr;
+    - line; pxVr; pxBarSr;
+    - line; pxBarSr; rectBar.se;
+    - line; rectBar.se; rectBar.ne;
+    - line; rectBar.ne; pxBarNr
+    - line; pxBarNr; pxHr;
+    #- line; pxHr; pxOe;
+    - close
+    - line; pxC1; pxI1;
+    - arc; pxI1; cI.r; cI.r; 0; cw; small; pxIe
+    #- line; pxIe; pxIe;
+    - close
+    - line; pxC2; pxI3;
+    - arc; pxI3; cI.r; cI.r; 0; cw; small; pxI2;
+    #- line; pxI2; pxC2;
+    - close
+    - line; pxC3; pxIw;
+    - arc; pxIw; cI.r; cI.r; 0; cw; small; pxI4;
+    - close
+    - line; pxIw2; pxHl
+    - line; pxHl; pxBarNl
+    - line; pxBarNl; rectBar.nw
+    - line; rectBar.nw; rectBar.sw
+    - line; rectBar.sw; pxBarSl
+    - line; pxBarSl; pxVl;
+    - arc; pxVl; cI.r; cI.r; 0; cw; small; pxIw2;
+    - close
+blocks:
+  circles:
+    - cI;
+    - cO;
+
+# --- Draw --------
+draw:
+  - logo; fill, red;
+
+jobs:
+  withRefs:
+    - circles; stroke, 0.4, aqua;fill,none;
+    - circ; pCIO; 1 ||| fill, aqua
+    - circ; pC; 1 ||| fill, blue
+    - logo; fill,grey,0.4;

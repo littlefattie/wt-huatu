@@ -1,0 +1,57 @@
+# The example to show how to design line shapes
+vars:
+  degLine: -40
+  l: 160
+  l1: 100
+  l2: 200
+  lenExtrude: 40
+
+points:
+  p0: 0,0
+  p0Xminus: p0.x -  50, p0.y;
+  p0Xplus:  p0.x + 150, p0.y;
+
+markers:
+  arrow1: arrow-simple;smooth;
+
+shapes:
+  line1: line; p0; degLine
+  lsBase: line; line1; -l1 - lenExtrude; l2 + lenExtrude;
+  ls1: line; line1; l
+  ls2: line; line1; -l1; l2;
+
+cpoints:
+  cpLs1end: line1; l;
+  cpLs1: line1; -l1
+  cpLs2: line1; l2
+  cpLHalfExtrude: line1; -l1;
+
+blocks:
+  base:
+    - circ; p0; 5; ||| fill, red;
+    - lsBase; stroke, 1, grey; dash; 3,3; marker; arrow1;
+    - anglemark; p0.x + 50, p0.y; p0; cpLs2; 
+      size; 80; arrow-solid;  labelpos; 0.34; lw; 40; linewidth; 2; lh; 20;  
+      strokecolor; green;fill; yellow;  anchor; bl; label; deg1; offset; 5, 0;
+    - line; p0Xminus; p0Xplus;   ||| stroke, 1, black; marker; arrow1;
+    - label; p0Xplus; anchor; ml; w; 60; left; ||| $X$
+    - label; cpLHalfExtrude; rotdeg; -40; anchor; br; w; 60; left; offset; 0,-7 ||| line1
+  
+  fig1:
+    - base;
+    - ls1; stroke, 4, black;
+    - dimmark; p0; cpLs1end; label; $l$; left;barlen; 40; linepos; 0.7; noStartArrow;
+  
+  fig2:
+    - base;
+    - ls2; stroke, 4, black; 
+    - dimmark; cpLs1; p0; label; $l_1$; left; barlen; 60; linepos; 0.7; noendarrow; 
+    - dimmark; p0; cpLs2; label; $l_2$; left; barlen; 60; linepos; 0.6; nostartbar; nostartarrow;
+    - circ; cpLs1; 4; ||| fill, blue, 0.6;
+    - label; cpLs1; anchor; tl; left; h; 24; font; times; offset; 4,0 ||| point at [$-l_1$] of line1
+    - circ; cpLs2; 4; ||| fill, blue, 0.6; 
+    - label; cpLs2; anchor; tl; left;w;140; h; 30; font; times; ||| point at [$ l_2$] of line1
+
+draw:
+  - fig1;
+  - fig2; move; 340, 0;

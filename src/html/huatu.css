@@ -1,0 +1,21 @@
+
+/**
+ * This file contains the CSS styles for rendering Huatu Label, which use Foreign Object of SVG.
+ * It will render the label in some html way and place it in the <foreignObject /> tag of SVG.
+ * The styles contained in this file should be injected in to the HTML where the SVGs will be rendered
+ * and injected into.
+ */
+
+.huatu-label-container {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: flex;
+}
+
+.huatu-label-text {
+  margin: auto;
+  text-align: center;
+  overflow: hidden;
+  max-height: 100%;
+}

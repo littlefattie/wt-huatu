@@ -1,0 +1,58 @@
+
+vars:
+  a: 150
+  b: 200
+
+points:
+  p0: 0,0
+
+shapes:
+  ell1: ell; p0; a; b; -30;
+  ell2: moveby; ell1; 100, -30;
+  ln1: line; 0, -80; -43; -220; 150
+  b2a: b2; 160, -220; -40, 20; 320, -60;
+  b3a: b3; b2a.s; -20, 10; 450, -180; 200, 20;
+
+xpoints:
+  xpEll12N: ell1; ell2; n;
+  xpEll12S: ell1; ell2; s;
+  xpLnEll2: ell2; ln1;
+  xpLnEll1E: ell1; ln1; e;
+  xpB2Ell1N: b2a; ell1; n;
+  xpB2Ell1S: b2a; ell1; s;
+  xpB3Ell2S: b3a; ell2; s;
+  xpB3Ell2N: b3a; ell2; n;
+
+shapes2:
+  arc1: arc; xpEll12N; ell1.rx; ell1.ry; ell1.rotdeg; cw; small;xpEll12S;
+  arc2: arc; xpEll12N; ell2.rx; ell2.ry; ell2.rotdeg; ccw; small; xpEll12S; 
+  arc3: arc; xpEll12S; ell2.rx; ell2.ry; ell2.rotdeg; ccw; large; xpEll12N;
+  seg1: subof; arc2; arc2.s; xpLnEll2;
+  seg2: subof; ln1; xpLnEll2; xpLnEll1E;
+  seg3a: subof; arc1; xpLnEll1E; xpB2Ell1N;
+  seg3b: subof; b2a; xpB2Ell1N; xpB2Ell1S;
+  seg3c: subof; arc1; xpB2Ell1S; arc1.e
+  seg4a: subof; arc3; arc3.s; xpB3Ell2S;
+  seg4b: subof; b3a; xpB3Ell2S; xpB3Ell2N;
+  seg4c: subof; arc3; xpB3Ell2N; arc3.e;
+paths:
+  comp1:
+    - seg1;
+    - seg2;
+    - seg3a;
+    - seg3b;
+    - seg3c;
+    - seg4a;
+    - seg4b;
+    - seg4c
+    - close
+
+draw:
+  - ell1; fill, none; stroke,1,cc
+  - ell2; fill, none; stroke,1,blue
+  - ln1; fill, none; stroke,1, red
+  - b2a; fill, none; stroke,1, cc;
+  - b3a; fill, none; stroke,1, cc;
+  - arc1; fill, none; stroke,6, pink; opaque, 0.6;
+  - arc2; fill, none; stroke,6, pink; opaque, 0.6;
+  - comp1; fill, yellow; stroke, 8, lime; opaque, 0.8; linecap; round

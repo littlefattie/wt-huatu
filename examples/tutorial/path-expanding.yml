@@ -1,0 +1,40 @@
+# The Demo to hollow a triangle in the center of triangle from Circle
+
+vars:
+  r1: 50
+  r2: r1 * 1.2
+  rTri: r1 * 0.6
+points:
+  pCenter: 0,0
+
+shapes:
+  c1: circle; pCenter; r1; 
+  c2: circle; pCenter; r2
+  cTri: circle; pCenter; rTri
+  tri1: tri; cTri.330; cTri.90; cTri.210
+  rect1: rect; bycenter; pCenter; r1 * 0.8; r1 * 0.6
+  rect2: rect; bycenter; pCenter; r1 * 0.6; r1 * 0.6
+
+paths:
+  outCircle:
+    - ...c1; ccw
+    - ...c2; cw
+  logo2:
+    - ...c1; ccw
+    - ...c2; cw
+    - ...tri1; ccw
+  logo3:
+    - ...c1; ccw
+    - ...rect1; cw; radius; 3,44,44,4
+  logo4:
+    - ...c1; ccw
+    - ...rect2; cw; radius; 6
+blocks:
+  logo1:
+    - outCircle; fill, red
+    - tri1; fill, green
+draw:
+  - logo1;
+  - logo2; move; r2 * 2.1, 0;fill, yellow
+  - logo3; move; 0, r2*2; fill; aqua
+  - logo4; move; r2 * 2, r2 * 2; fill; silver; stroke, 6, cc;

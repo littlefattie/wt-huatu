@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "scoped-svg-styles": "off",
+    "no-inline-styles": "off"
+  }
+}

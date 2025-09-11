@@ -1,0 +1,42 @@
+# wt-huatu default empty file
+vars:
+  R: 200
+
+points:
+  p0: 0,0
+
+shapes:
+  c1: circ; p0; R
+
+cpoints:
+  cpO: c1; c;
+  cpN: c1; n;
+  cpS: c1; s;
+  cpE: c1; e;
+  cpW: c1; w;
+  cpNE: c1; ne;
+  cpNW: c1; nw;
+  cpSE: c1; se;
+  cpSW: c1; sw;
+  cp300: c1; 300
+  cp199: c1; 199.99
+
+pointSeries:
+  ps1:cpO; cpN; cpS; cpE; cpW; cpNE; cpNW; cpSE; cpSW;
+
+draw:
+  - c1; stroke, 2, black; fill, none;
+  - ps1; 4; blue;
+  - label; cpO; anchor; tm; h; 30; w; 25 ||| c
+  - label; cpN; anchor; bm; h; 30; w; 25 ||| n
+  - label; cpS; anchor; tm; h; 30; w; 25 ||| s
+  - label; cpE; anchor; ml; h; 30; w; 25 ||| e
+  - label; cpW; anchor; mr; h; 30; w; 25 ||| w
+  - label; cpNE; anchor; bl; h; 30; w; 25 ||| ne
+  - label; cpSE; anchor; tl; h; 30; w; 25 ||| se
+  - label; cpNW; anchor; br; h; 30; w; 25 ||| nw
+  - label; cpSW; anchor; tr; h; 30; w; 25 ||| sw
+  - circ; cp300; 4; ||| fill, red;
+  - label; cp300; anchor; bl; h; 30; w; 32; color; red; ||| 300
+  - circ; cp199; 4; ||| fill, magenta;
+  - label; cp199; anchor; br; h; 30; w; 52; color; magenta; ||| 199.99

@@ -1,0 +1,17 @@
+# wt-huatu default empty file
+
+shapes:
+  tri1: tri; -100, 100; 150, 80; -10, -90;
+
+pointSeries:
+  ps1: tri1; 1,2,3, cin, cout, cg;    # discretely present the tags
+  ps2: tri1; 1; 0.1, 0.2, 0.7;        # descrete t's on 1st edge 
+  ps3: tri1; 2; 0.2: 0.15: 0.7;       # range ot t's on 2nd edge
+blocks:
+  blk1:
+    - tri1; stroke, 1, black; fill, none;
+    - ps1; 3; blue;
+    - ps2; 3; magenta;
+    - ps3; 3; red;
+draw:
+  - blk1;

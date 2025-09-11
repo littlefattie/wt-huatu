@@ -1,0 +1,14 @@
+# wt-huatu default empty file
+shapes:
+  rect1: rect;bycenter; 0,0; 400; 260;
+
+pointSeries:
+  ps1: rect1; nw; ne; s;w; c;
+  ps2: rect1; north; 0.1, 0.3, 0.7
+  ps3: rect1; east; 0.2: 0.15: 0.8
+
+draw:
+  - rect1; stroke, 1, black; fill, none;
+  - ps1; 3; black;
+  - ps2; 3; blue;
+  - ps3; 3; magenta;

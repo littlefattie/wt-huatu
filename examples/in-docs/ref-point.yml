@@ -1,0 +1,57 @@
+# wt-huatu default empty file
+
+shapes:
+  rect1:   rect; bycenter; 0,0; 100; 80
+  c1:      circ; 0,0; 40
+  tri1:    tri; -40, -40; 80, 0; -16,40;
+  line1:   line; 0, 0; -40;
+  ls1Back: line; line1; -30; 70
+  ls1:     line; line1.o; line1.50;     # Point of length of 50 on line1
+  ring1:   ring; c1.c; 30; 40;
+  bezier1: b3; -30, -30; -10, -30; 5, 20; 20, 4;
+
+pointSeries:
+  ps1: rect1.n; rect1.s; rect1.w; rect1.e;
+  ps2: rect1.sw; rect1.se; rect1.nw; rect1.ne
+  ps3: c1.c; c1.222; c1.333             # Point of Deg 222/333 on c1
+  ps4: tri1.a; tri1.b; tri1.c;
+  ps5: tri1.cin; tri1.cout; tri1.cg
+  ps6: ls1.s; ls1.e;
+  ps7: ring1.cin; ring1.333; ring1.222  # Point of Deg 222/333 on ring1
+  ps8: bezier1.s; bezier1.m; bezier1.e
+  
+blocks:
+  blkRect1:
+    - rect1; stroke, 2, grey; fill, none;
+    - ps1; 4; black;
+    - ps2; 4; red;
+  blkC1:
+    - c1; stroke,2, grey; fill, none;
+    - ps3; 4; black;
+  blkTri1:
+    - tri1; stroke,2, grey; fill, none;
+    - ps4; 4; black;
+    - ps5; 4; red;
+  blkLine1:
+    - ls1Back; stroke,1, black; dash,3,3
+    - ls1; stroke, 4, royalblue; opaque, 0.6;
+    - ps6; 4; black;
+  blkRing1:
+    - ring1; stroke, 2, grey; fill, none;
+    - ps7; 4; black;
+  blkBezier1:
+    - line; bezier1.s; -10, -30; ||| stroke, 1, aqua;
+    - line; bezier1.e; 5, 20; ||| stroke, 1, aqua;
+    - circ; 5, 20; 3; ||| fill, magenta
+    - circ; -10, -30; 3; ||| fill, magenta
+    - bezier1; stroke, 2, grey; fill, none;
+    - ps8; 4; red; 0.4;
+draw:
+  - blkRect1;
+  - blkC1;      move; 120, 0
+  - blkTri1;    move; 230, 0
+  - blkLine1;   move; -10, 120
+  - blkRing1;   move; 120, 100
+  - blkBezier1; move; 245, 110
+
+

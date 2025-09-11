@@ -1,0 +1,41 @@
+# wt-huatu default empty file
+
+vars:
+  R1: 160
+  R2: R1 * 1.5
+points:
+  p0: 0,0
+shapes:
+  ring1: ring; p0; R1; R2;
+
+cpoints:
+  cpCin:     ring1; cin;
+  cpCout:    ring1; cout;
+  cpIn:      ring1; in;
+  cpOut:     ring1; out;
+  cpIn_300:  ring1; in;  300
+  cpOut_200: ring1; out; 200
+  cp255:     ring1; 255
+
+draw:
+  - line; p0.x - R2 * 1.2, p0.y; p0.x + R2 * 1.2, p0.y; ||| stroke, 1, black; dash, 3,3; marker; arrow1;
+  - ring1; stroke, 3, black; fill, none; marker;
+  #- line; p0.x, p0.y - R2 * 1.2; p0.x, p0.y + R2 * 1.2; ||| stroke, 1, black; dash, 3,3;
+  # Point on Inner Circle
+  - line; p0; cpIn_300;  ||| stroke, 1, red; dash, 3,3;
+  - label; cpIn_300; anchor; bl; w; 60; h; 30; color; red ||| in, 300
+  - circ; cpIn_300; 6;   ||| fill, red;
+  # Point on Outer Circle
+  - line; p0; cpOut_200; ||| stroke, 1, magenta; dash, 3,3;
+  - label; cpOut_200; anchor; br; w; 80; h; 30; color; magenta ||| out, 200
+  - circ; cpOut_200; 6;  ||| fill, magenta;
+  # Point without specify inner/outer circle
+  - line; p0; cp255; ||| stroke, 1, blue; dash, 3,3;
+  - label; cp255; anchor; br; w; 50; h; 30; ||| 255
+  - circ; cp255; 6;      ||| fill, blue;
+  # Center Point
+  - circ; cpCin; 36;  ||| fill, black;
+  - circ; cpCout; 28; ||| fill, yellow;
+  - circ; cpIn; 20;   ||| fill, red;
+  - circ; cpOut; 12;  ||| fill, black;
+  - label; cpCin; anchor; tm; w; 120; h; 30; offset; 0, 40 ||| cin, cout, in, out

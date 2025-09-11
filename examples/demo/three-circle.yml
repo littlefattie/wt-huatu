@@ -1,0 +1,114 @@
+title: Test color blender chart.
+desc: The demo example to draw the color blender chart, using RGB color.
+  
+vars:
+  r: 30
+  d: r * 1.2  # The factor 1.2 should be > 1 and < 2
+points:
+  pCenter: 0, 0
+  pc1: pCenter.x - d/2, pCenter.y
+  pc2: pCenter.x + d/2, pCenter.y
+  pc3: pCenter.x, pCenter.y -1.732 * d / 2
+shapes:
+  c1: Circle;pc1;r
+  c2: Circle;pc2;r
+  c3: Circle;pc3;r
+  rect1: rect; -d * 2, -d * 2; 2 * d, 2 * d;
+xpoints:
+  xp12s: c1;c2;S
+  xp12n: c1;c2;N
+  xp13e: c1;c3;E
+  xp13w: c1;c3;W
+  xp23e: c2;c3;E
+  xp23w: c2;c3;W
+
+paths:
+  petalOuter:
+    - arc;xp13w; r; r; 0; ccw; large; xp12s;
+    - arc;xp12s; r; r; 0; ccw; large; xp23e;
+    - arc;xp23e; r; r; 0; ccw; large; xp13w;
+    - close # The outer-most shape
+  petal1: 
+    - arc;xp13w; r; r; 0; ccw; large; xp12s;
+    - arc;xp12s; r; r; 0; cw;  small; xp23w;
+    - arc;xp23w; r; r; 0; cw;  small; xp13w;
+    - close
+  petal2: 
+    - arc;xp12s; r; r; 0; ccw; large; xp23e;
+    - arc;xp23e; r; r; 0; cw;  small; xp13e;
+    - arc;xp13e; r; r; 0; cw;  small; xp12s;
+    - close
+  petal3: 
+    - arc;xp23e; r; r; 0; ccw; large; xp13w;
+    - arc;xp13w; r; r; 0; cw;  small; xp12n;
+    - arc;xp12n; r; r; 0; cw;  small; xp23e;
+    - close
+  petals1: 
+    - arc;xp23w; r; r; 0; ccw; small; xp12s;
+    - arc;xp12s; r; r; 0; ccw; small; xp13e;
+    - arc;xp13e; r; r; 0; cw;  small; xp23w;
+    - close
+  petals2: 
+    - arc;xp13e; r; r; 0; ccw; small; xp23e;
+    - arc;xp23e; r; r; 0; ccw; small; xp12n;
+    - arc;xp12n; r; r; 0; cw;  small; xp13e;
+    - close
+  petals3: 
+    - arc;xp12n; r; r; 0; ccw; small; xp13w;
+    - arc;xp13w; r; r; 0; ccw; small; xp23w;
+    - arc;xp23w; r; r; 0; cw;  small; xp12n;
+    - close
+  center: 
+    - arc;xp23w; r; r; 0; ccw; small; xp13e;
+    - arc;xp13e; r; r; 0; ccw; small; xp12n;
+    - arc;xp12n; r; r; 0; ccw; small; xp23w;
+    - close
+  outbox: rect; pc1.x-r-d * 0.2, pc3.y-r-d * 0.2;  d + 2*r + d * 0.4;  2 * r + 1.732 * d / 2 + d * 0.4
+
+blocks:
+  xpts:
+    - Circle; xp12n; 2 ||| 
+    - Circle; xp12s; 2 ||| 
+    - Circle; xp13e; 2 ||| 
+    - Circle; xp13w; 2 ||| 
+    - Circle; xp23e; 2 ||| 
+    - Circle; xp23w; 2 ||| 
+  threeCircles:
+    - c1; stroke, 1, red
+    - c2; stroke, 1, green
+    - c3; stroke, 1, blue
+  petalBig:
+    - petal1; fill; red
+    - petal2; fill, green
+    - petal3; fill, blue
+  petalSmall:
+    - petals1; fill, yellow
+    - petals2; fill, cyan
+    - petals3; fill, magenta
+
+jobs:
+  refs:
+    - threeCircles; fill, none;
+    - xpts; fill, black;
+  petals:
+    #- petalBig
+    - petal1; fill; red; move; -3.464, 2
+    - petal2; fill, green; move; 3.464, 2
+    - petal3; fill, blue; move; 0, -4
+    #- petalSmall
+    - petals1; fill, yellow;  move; 0, 2
+    - petals2; fill, cyan;    move; 1.732, -1
+    - petals3; fill, magenta; move;  -1.732, -1
+    #- threeCircles; fill, none;
+  outline:
+    - petalOuter; fill, none; stroke; 2, cc
+  all:
+    - outbox; fill, grey
+    - petalOuter; fill, none; stroke; 3; cc
+    - petalBig
+    - petalSmall
+    - c1; stroke, 0.4, white; fill,none;
+    - c2; stroke, 0.4, white; fill,none;
+    - c3; stroke, 0.4, white; fill,none;
+    - center; fill, white
+  

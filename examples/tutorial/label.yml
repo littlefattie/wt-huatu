@@ -1,0 +1,38 @@
+title: Label Test
+desc: Test the functionality of Labels
+config:
+  # labelBackground: #eee
+  # markPositions: aqua
+vars:
+  r: 300
+  w: 500
+  h: 400
+points: 
+  pCenter: 0, 0
+  pDir: 100, -100
+labelStyles:
+  styDirection:
+    color: red
+    font: heiti
+    align: center
+shapes:
+  box: rect; -w/2, -h/2; w; h;
+  cDir: circ; pDir; 50;
+pointSeries:
+  psDir: cDir; 0, 90, 180, 270
+blocks:
+  bg:
+    - box; stroke, 1, black; fill, yellow, 0.2;
+    # - label; font; lishu ;w; 45; h;20; anchor; center; at; pCenter; color; red; fs; 15; ||| 最中间
+    # - label; font; kaishu; w; 120; h, 34; at; -w/4, h / 4; align; left; color; blue;  fs;12;anchor, bl; ||| $y = \frac{\sin x}{x}$
+    # - label; font; kaishu; w; 120; h, 34; at; -w/4, h / 4 + 40; color; blue; ||| 你好吗
+  directions:
+    - cDir; stroke, 1, blue; fill, none;
+    - label; styDirection; w; 20; h, 20; at; psDir[1];anchor; tm ; rotdeg; -90 ||| 东
+    - label; styDirection; w; 20; h, 20; at; psDir[2];anchor; tm ||| 南
+    - label; styDirection; w; 20; h, 20; at; psDir[3];anchor; tm;  rotdeg; 90||| 西
+    - label; styDirection; w; 20; h, 20; at; psDir(4);anchor; tm; rotdeg; 180 ||| 北
+draw:
+  - viewBox; -w/2, -h/2; w/2, h/2
+  - bg
+  - directions

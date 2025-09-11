@@ -1,0 +1,50 @@
+# wt-huatu default empty file
+vars:
+  w: 500
+  h: 300
+
+shapes:
+  rect1: rect; 0,0; w; h;
+
+cpoints:
+  cpTM: rect1; top-middle;    # `top-middle` could be `topmiddle`, `nm`, or just `n`
+  cpS:  rect1; s;             # `s` could be `sm`, `bottommiddle`, or `bottom-middle`
+  cpW:  rect1; leftmiddle;    # `leftmiddle` could be `w`, `wm`, or `left-middle`
+  cpEM: rect1; em;            # `em` could `e`, `rightmiddle`, or `right-middle`
+  cpC:  rect1; c;             # `c` could be `center`
+  cpNE: rect1; ne;            # `ne` could be `topright`, or `top-right`
+  cpNW: rect1; top-left;      #  `top-left` could be `topleft`, or `nw`
+  cpSE: rect1; bottomright;   # `bottomright` could be `bottom-right` or `se`d
+  cpSW: rect1; sw;            # `sw` could be `bottom-left` or `bottomleft`
+  cp_north_3rd:  rect1; north;   1/3;    # `north` could be `top`
+  cp_south_p6:   rect1; south;   0.6;    # `south` could be `bottom`
+  cp_left_p333:  rect1; left;  0.333;    # `left` could be `west`
+  cp_right_p777: rect1; right; 0.777;    # `right` could be `east`
+pointSeries:
+  psDirs: cpTM; cpS; cpW; cpEM; cpNE; cpNW; cpSE; cpSW;
+draw:
+  - line; cpNW; cpSE; ||| stroke, 1, grey; dash, 3,3;
+  - line; cpSW; cpNE; ||| stroke, 1, grey; dash, 3,3;
+  - rect1; stroke; 3, black; fill, none;
+  - circ; cpC; 6; ||| fill, red;
+  - psDirs; 6; blue;
+  - label; cpC;  w; 40; color; red;  anchor; tm; offset; 0, 8 ||| c
+  - label; cpTM; w; 40; color; blue; anchor; bm; offset; 0, -8 ||| n
+  - label; cpS;  w; 40; color; blue; anchor; tm; offset; 0, 8 ||| s
+  - label; cpW;  w; 40; color; blue; anchor; mr;  ||| w
+  - label; cpEM; w; 40; color; blue; anchor; ml;  ||| e
+  - label; cpNW; w; 40; color; blue; anchor; br; offset; 0, -5 ||| nw
+  - label; cpNE; w; 40; color; blue; anchor; bl; offset; 0, -5 ||| ne
+  - label; cpSW; w; 40; color; blue; anchor; tr;  ||| sw
+  - label; cpSE; w; 40; color; blue; anchor; tl;  ||| se
+  - dimmark; cpNW; cpNE; gap; 40; lineWidth; 2; label;  $W$; left; barlen; 30;linepos; 0.7;
+  - circ; cp_north_3rd; 6; ||| fill, maroon;
+  - dimmark; cpNW; cp_north_3rd; lineWidth; 2; label; north, 1/3; labelwidth; 80; left; barlen; 40; linepos; 0.6
+  - circ; cp_south_p6; 6; ||| fill, maroon;
+  - dimmark; cpSW; cp_south_p6; lineWidth; 2; label; south, 0.6; labelwidth; 80; barlen; 40; linepos; 0.6
+  - dimmark; cpNW; cpSW; gap; 70; lineWidth; 2; label;  $H$; barlen; 30;linepos; 0.7;
+  - circ; cp_left_p333; 6; ||| fill, maroon;
+  - dimmark; cpNW; cp_left_p333; lineWidth; 2; label; left, 0.333; labelwidth; 60; lh; 40; barlen; 65; linepos; 0.35;
+  - circ; cp_right_p777; 6; ||| fill, maroon;
+  - dimmark; cpSW; cp_south_p6; lineWidth; 2; label; south, 0.6; labelwidth; 80; barlen; 40; linepos; 0.6
+  - dimmark; cpNE; cp_right_p777; lineWidth; 2; left; label; right, 0.777; labelwidth; 50; lh; 40; barlen; 65; linepos; 0.65;

@@ -1,0 +1,33 @@
+# --- Points ------
+points:
+  p1: 160, 200
+  p2: -200, 250
+  p3: -300, -200
+  p4: -20, -400
+  p5: 200, -220
+  p6: 230, 00
+
+# --- Shapes ------
+shapes:
+  plg1: polygon; p1; p2; p3; p4; p5; p6
+cpoints:
+  cp2: plg1; 2
+  cp3_p666: plg1; 3; 0.666
+
+# --- Draw --------
+draw:
+  - plg1; fill, yellow, 0.3; stroke, 3; black;
+  - label; p1; anchor; tl; w; 30; ||| $P_1$
+  - label; p2; anchor; tr; w; 30; ||| $P_2$
+  - label; p3; anchor; mr; w; 30; ||| $P_3$
+  - label; p4; anchor; bm; w; 30; h; 25 ||| $P_4$
+  - label; p5; anchor; bl; w; 30; ||| $P_5$
+  - label; p6; anchor; ml; w; 30; ||| $P_6$
+  - line; plg1.3; plg1.4; ||| stroke, 12; royalblue; opaque; 0.6;
+  - circ; cp2; 8; ||| fill, blue;
+  - label; cp2; anchor; bl; w; 30; offset; 5, -14 ||| $cp2$
+  - circ; cp3_p666; 12; ||| fill, blue;
+  - label; cp3_p666; anchor; tl; w; 60; offset; 12, 4 ||| $3, 0.666$
+  - label; cp3_p666; w; 70; h; 45;anchor; br; offset; -10,8; blue;||| 多边形的第3条边
+  - dimmark; p3; p4; linewidth; 2; left; barwidth; 1.5; barlen; 100; linepos; 0.8; label; $L$
+  - dimmark; p3; cp3_p666; linewidth; 2; barwidth; 1.5; barlen; 40; linepos; 0.8; label; $0.666L$

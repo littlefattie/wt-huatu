@@ -1,0 +1,38 @@
+# wt-huatu default empty file
+shapes:
+  pln1: pln; -40, -40; -60, 50; 50, 40; 20, -30; -10, 0;
+  plg1: plg; -40, -40; -60, 50; 50, 40; 20, -30; -10, 0;
+
+pointSeries:
+  psPln1: pln1; 2; 0.1, 0.2, 0.4;     # discrete t's on 2nd segment
+  psPln2: pln1; 3; 0.1: 0.15: 0.7;    # ranged t's on 3rd segment
+  psPln3: pln1; 1,2,4;                # The 1st, 2nd, 4th vertices
+  psPlg1: plg1; 2; 0.1, 0.2, 0.4;     # discrete t's on 2nd edge
+  psPlg2: plg1; 5; 0.1: 0.15: 0.7;    # ranged t's on 5th edge
+  psPlg3: plg1; 1,3,5;                # The 1st, 3rd, 5th vertices
+blocks:
+  blkPln1:
+    - pln1; stroke,1,black; fill, none;
+    - psPln1; 2; blue;
+  blkPln2:
+    - pln1; stroke,1,black; fill, none;
+    - psPln2; 2; red;
+  blkPln3:
+    - pln1; stroke,1,black; fill, none;
+    - psPln3; 2; magenta;
+  blkPlg1:
+    - plg1; stroke,1,black; fill, none;
+    - psPlg1; 2; blue;
+  blkPlg2:
+    - plg1; stroke,1,black; fill, none;
+    - psPlg2; 2; red;
+  blkPlg3:
+    - plg1; stroke,1,black; fill, none;
+    - psPlg3; 2; magenta;
+draw:
+  - blkPln1
+  - blkPln2; move; 150,0;
+  - blkPln3; move; 300,0;
+  - blkPlg1; move; 0,  110;
+  - blkPlg2; move; 150,110;
+  - blkPlg3; move; 300,110;

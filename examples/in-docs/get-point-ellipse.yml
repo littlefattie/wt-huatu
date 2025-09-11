@@ -1,0 +1,66 @@
+# wt-huatu default empty file
+
+vars:
+  rx: 200
+  ry: rx * 0.76
+  deg1: -32
+points:
+  p0: 0,0
+shapes:
+  ell1: ell; p0; rx; ry; deg1;
+  lnx: line; p0; 0;
+  lnRx: line; p0; deg1;
+  lnRy: line; p0; deg1 - 90;
+  lnYpX: line; p0; -45
+  lnYmX: line; p0;  45
+cpoints:
+  cpC: ell1; c;
+  cpE: ell1; e;
+  cpN: ell1; n;
+  cpW: ell1; w;
+  cpS: ell1; s;
+  cpNE: ell1; ne;
+  cpSE: ell1; se;
+  cpNW: ell1; nw
+  cpSW: ell1; sw
+  cpYpX: lnYpX; -20
+  cp90: ell1; 90
+
+pointSeries:
+  psNSWE: cpE; cpS; cpN; cpW;
+  ps8: cpNE; cpSE; cpNW; cpSW;
+
+blocks:
+  blkNSWEMarks:
+    - line; cpE; 90; -50; 50; |||
+    - line; cpN;  0; -50; 50; |||
+    - line; cpW; 90; -50; 50; |||
+    - line; cpS;  0; -50; 50; |||
+  blkCrossLines:
+    - line; lnYpX; -rx * 1.2; rx * 1.2 |||
+    - line; lnYmX; -rx * 1.2; rx * 1.2 |||
+draw:
+  - line; lnx; -rx * 1.2; rx * 1.2 ||| stroke, 1, red; dash, 3,3;
+  - line; lnRx; -rx * 1.2; rx * 1.2 ||| stroke, 1, black; dash, 3,3;
+  - line; lnRy;-ry * 1.2; ry * 1.2 ||| stroke, 1, black; dash, 3,3; 
+  - anglemark; lnx.20; lnx.a; lnRx.30; lineWidth; 2; size; 65;arrow-simple; showdeg; labelpos; 0.3;
+  - ell1; fill, none; stroke, 3, black;
+  - psNSWE; 6; blue;
+  - blkNSWEMarks; stroke, 1, magenta
+  - blkCrossLines; stroke,0.5, maroon;
+  - ps8; 6; maroon;
+  - anglemark; lnx.20; lnx.a; lnYmX.30; lineWidth; 2; size; 75;arrow-simple; anchor; tl; showdeg; labelpos; 0.4; maroon; textcolor; maroon;
+  - anglemark; lnx.20; lnx.a; cpYpX; lineWidth; 2; size; 110;arrow-simple; anchor; tr; showdeg; labelpos; 0.65; lh; 30; maroon; textcolor; maroon;
+  - label; cpE;  anchor; ml; w; 40; ||| e
+  - label; cpW;  anchor; mr; w; 40; ||| w
+  - label; cpN;  anchor; bm; w; 40; h; 35; ||| n
+  - label; cpS;  anchor; tm; w; 40; h; 35; ||| s
+  - label; cpNE; anchor; ml; w; 45; h; 35; ||| ne
+  - label; cpNW; anchor; mr; w; 45; h; 35; ||| nw
+  - label; cpSW; anchor; mr; w; 45; h; 35; ||| sw
+  - label; cpSE; anchor; ml; w; 45; h; 35; ||| se
+  - circ;  cpC; 8; ||| fill, black;
+  - label; cpC; anchor; bm; w; 45; h; 45; ||| c
+  - circ; cp90; 6; ||| fill, red;
+  - label; cp90; anchor; tm; w; 30; h; 40; red; ||| 90
+

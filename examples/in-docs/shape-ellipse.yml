@@ -1,0 +1,40 @@
+
+vars:
+  rx: 220
+  ry: 150
+  rotDeg: 24
+
+markers:
+  arrow1: arrow-solid; size; 12;
+# --- Points ------
+points:
+  pCenter: (0, 0)
+  pXplus: rx * 1.3, 0
+
+# --- Shapes ------
+shapes:
+  ell1: ell; pCenter; rx; ry; rotDeg;
+
+cpoints:
+  cpEast: ell1; 0;
+  cpNorth: ell1; 270;
+shapes2:
+  lsRx: line; pCenter; cpEast;
+  lsRy: line; pCenter; cpNorth;
+  lnRx: line; pCenter; lsRx.deg;
+  lnRy: line; pCenter; lsRy.deg;
+  lsRx1: line; lnRx; -rx * 1.2; rx * 1.3
+  lsRy1: line; lnRy; -ry * 1.2; ry * 1.4
+  
+
+# --- Draw --------
+draw:
+  - ell1; stroke, 3, black; fill, none;
+  - lsRx1; stroke, 1, silver; dash; 2,2; marker; arrow1;
+  - lsRy1; stroke, 1, silver; dash; 3,3; marker; arrow1;
+
+  - line; pCenter; pXplus; ||| stroke, 1, grey; dash; 3,3; marker; arrow1;
+  - dimmark; pCenter; cpEast; nostartbar; noendbar; nostartarrow; gap;0; linepos; 0; linewidth; 2; label; $R_x$
+  - dimmark; pCenter; cpNorth; left; nostartbar; noendbar; nostartarrow; gap;0; linepos; 0; linewidth; 2; label; $R_y$
+  - anglemark; pXplus; pCenter; cpEast; arrow-solid; size; 130; linewidth; 2; anchor; ml; offset; 7,0; labelpos; 0.46; label; rotDeg;
+  - circ; pCenter; 4 ||| fill, red;

@@ -1,0 +1,23 @@
+# wt-huatu default empty file
+markers:
+  arrow1: arrow-simple; size; 6;
+
+shapes:
+  ls1: ls; 0,0; 300, -200
+
+cpoints:
+  cpS: ls1; s
+  cpE: ls1; end
+  cpM: ls1; mid
+  cpT: ls1; 0.666
+
+draw:
+  - ls1; stroke, 3, black; marker; arrow1;
+  - circ; cpS; 6 ||| fill, red
+  - circ; cpE; 6 ||| fill, blue
+  - circ; cpM; 6 ||| fill, magenta
+  - circ; cpT; 6 ||| fill, orange
+  - label; cpS; anchor; tl;w; 20; h; 20; color; red;     ||| s
+  - label; cpE; anchor; tl;w; 20; h; 20; color; blue;    ||| e
+  - label; cpM; anchor; tl;w; 20; h; 25; color; magenta; ||| m
+  - label; cpT; anchor; tl;w; 60; h; 20; color; orange;  ||| 0.666

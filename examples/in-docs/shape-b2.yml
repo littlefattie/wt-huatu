@@ -1,0 +1,23 @@
+# examples of 2nd bezier
+
+points:
+  pStart: -20, -20
+  pEnd:   320, 180
+  pCtrl: pStart.x + 320, pStart.y - 140
+
+blocks:
+  refLines:
+    - line; pStart; pCtrl; |||
+    - line; pCtrl; pEnd; |||
+  refAll:
+    - refLines; stroke, 1, aqua
+    - circ; pStart; 6; ||| fill, aqua
+    - circ; pEnd; 6;   ||| fill, aqua
+    - circ; pCtrl; 6;  ||| fill, magenta
+  
+draw:
+  - refAll;
+  - b2; pStart; pCtrl; pEnd ||| stroke, 6, black; fill, none; opaque; 0.2;
+  - label; pStart; anchor; tr; w; 70; ||| pStart
+  - label; pEnd; anchor; tl; w; 70; ||| pEnd
+  - label; pCtrl; anchor; bl; w; 70; color; magenta ||| pCtrl

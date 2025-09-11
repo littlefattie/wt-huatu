@@ -1,0 +1,80 @@
+# wt-huatu default empty file
+
+shapes:
+  ln1: line; 0,0; -32
+  ls1: line; -40, -40; -180, 280;
+  c1:  circ; 0,0; 40
+  ell1: ell; 0,0; 40; 20; -25; 
+  b2a: b2; -10, -10; 20, -40; 30, 20;
+  b3a: b3; -10, -10; 20, -40; -30, 25; 30, 20;
+pointSeries:
+  # for Line
+  psLn1: ln1; 20, 30, 0, -20, -30;  # Give discrete 'lengths`
+  psLn2: ln1; a, 10, 20;
+  psLn3: ln1; -20:8:30;             # Give a range of length
+  # for Linesegment
+  psLs1: ls1; 0.1, 0.3, 0.7, 0.888; # Give discrete t 
+  psLs2: ls1; 1 : 0.1 : 0;          # Give range of t 
+  # for Circle
+  psC1:  c1; c, 12, 66, 90, 180;    # Give discrete tags/degrees
+  psC2:  c1; 0: 15: 120;            # Give range of degree
+  # for Ellipse
+  psEll1: ell1; e; s; w; 40; 100;   # Give discrete tags/degrees
+  psEll2: ell1; 40:20:270;          # Give range of degree
+  # for Bezier2
+  psB2a1: b2a; s;e;m; 0.777;        # Give discrete tags/t
+  psB2a2: b2a; 0.2: 0.25: 0.9;      # Give range of t
+  # for Bezier3
+  psB3a1: b3a; s,e,m, 0.777;        # Give discrete tags/t
+  psB3a2: b3a; 0.2: 0.25: 0.9;      # Give range of t
+blocks:
+  blkLn1:
+    - line; ln1; -50; 50; ||| stroke, 1, black; dash, 3,3;
+    - psLn1; 4; blue;
+    - psLn2; 2; red;
+  blkLn2:
+    - line; ln1; -50; 50; ||| stroke, 1, black; dash, 3,3;
+    - psLn3; 2; magenta;
+  blkLs1:
+    - ls1; stroke, 2, black;
+    - psLs1; 3; blue;
+  blkLs2:
+    - ls1; stroke, 2, black;
+    - psLs2; 3; magenta;
+  blkC1:
+    - c1; stroke, 1, black; fill, none;
+    - psC1; 3; blue;
+  blkC2:
+    - c1; stroke, 1, black; fill, none;
+    - psC2; 3; magenta;
+  blkEll1:
+    - ell1; stroke, 1, black; fill, none;
+    - psEll1; 3; blue;
+  blkEll2:
+    - ell1; stroke, 1, black; fill, none;
+    - psEll2; 3; magenta;
+  blkB2a1:
+    - b2a; stroke,1, black; fill, none;
+    - psB2a1; 3; blue;
+  blkB2a2:
+    - b2a; stroke,1, black; fill, none;
+    - psB2a2; 3; magenta;
+  blkB3a1:
+    - b3a; stroke,1, black; fill, none;
+    - psB3a1; 3; blue;
+  blkB3a2:
+    - b3a; stroke,1, black; fill, none;
+    - psB3a2; 3; magenta;
+draw:
+  - blkLn1;
+  - blkLn2;  move; 0, 20;
+  - blkLs1;
+  - blkLs2;  move; -20, 0;
+  - blkC1;   move;   0, 100;
+  - blkC2;   move; -40, 200;
+  - blkEll1; move; 100, 0;
+  - blkEll2; move; 100, 60;
+  - blkB2a1; move; 100, 120;
+  - blkB2a2; move; 80, 140;
+  - blkB3a1; move; 90, 160;
+  - blkB3a2; move; 70, 180;

@@ -1,0 +1,148 @@
+# wt-huatu default empty file
+
+# Example WT-HUATU design file
+# --- Vars ------
+vars:
+  a: 30
+  b: 40
+
+# --- Points ------
+points:
+  pC1: (0, 0)
+  pC2: (b, 0)
+# --- Shapes ------
+shapes:
+  c1: circle; pC1; a
+  c2: circle; pC2; b
+  e3: ell; pC2.x + 5, pC2.y; a; b*2; 45
+  e4: rotate; e3; 90; pC1
+  rect1: rect; bycenter; pC2; 60; 32
+  rect2: rotate; rect1; 45; pC2;
+  rect3: rotate; rect1; -45; rect1.se;
+  ring1: ring; pC2; 20; 40;
+  ring2: move; ring1; -30, 30;
+  ring3: rotate; ring1; 180; -10, 10;
+  dupE1: dupTo; e3; in; 3;
+  dupE2: dupto; e4; out; 4;
+  dupC1: dupto; c1; out; 5;
+  dupC2: dupTo; c2; in; 6;
+  dupRect1: dupto; rect1; in; 3;
+  dupRect2: dupto; rect2; out; 4;
+  dupRect3: dupto; rect3; out; 4;
+  dupRg1: dupto; ring1; in; 2;
+  dupRg2: dupto; ring2; out; 3; 
+  dupRg3: dupto; ring3; in; 4;
+  ls1: LN; -100, 100; 100, -100;
+  dupLs1: dupto; ls1; right; 10;
+  dupLs2: dupto; ls1; left; 10;
+  # build Letter S
+  b3S: b3; 300, -800; -800, -1100; 1000, 300; -200, 0;
+  b3SDupR: dupto; b3S; right; 40;
+  b3SDupL: dupto; b3S; left; 40;
+  b3sDupR2: dupto; b3SDupR; left; 20; 
+  # polygon
+  plg1: plg; -100, -110; 0, -140; 40, -90; -20, 80; -90, 40;
+  dupPlg2: dupto; plg1; in; 20;
+  dupPlg3: dupto; plg1; out; 40;
+  dupPlg4: dupto; dupPlg3; in; 20;
+  dupPlg5: dupto; dupPlg3; out; 20;
+  # triangle
+  tri1: tri; -100, -90; 20, -70; -80, 70;
+  dupTri1: dupto; tri1; in; 20;
+  dupTri2: dupto; tri1; out; 20;
+  
+xpoints:
+  xpp1: dupC2; c1; n
+  xpp2: dupC2; c1; s
+paths:  
+  pp1: 
+    - ...e4;
+  pp2: rotate; pp1; 90; pc1
+  pp3:
+    - line; pC1; -4, -3;
+    - line; -4, -3; -12, 3;
+    - line; -12, 3; 3, 6;
+    - close
+  pp4: rotate; pp3; 90; 3, 6
+  pp5: 
+    - dupto; pp1; in; 3
+  b3sDupRightRev:
+    - ...b3SDupR; reverse;
+  pp6:
+    - ...b3sDupRightRev; 
+    - ln; b3sDupRightRev.e; b3SDupL.s;
+    - ...b3SDupL;
+    - ln; b3SDupL.e; b3sDupRightRev.s;
+    - close
+  ppC1:
+    - arc; xpp1; dupC2.r; dupC2.r; 0; large; cw; xpp2
+    - arc; xpp2; c1.r; c1.r; 0; large; cw; xpp1
+    - close
+  ppC1d:
+    - dupto; ppC1; out; 5 
+  ppC1d2:
+    - dupto; ppC1; in; 5; miter;
+
+# --- Draw --------
+draw:
+    - pp3; stroke; 0.2; red; fill, none; 
+    - pp4; stroke; 0.2; cc; fill, none;
+
+
+jobs:
+  segs:
+    - pp3; stroke; 0.2; red; fill, none;
+    - pp4; stroke; 0.2; cc; fill, none;
+  rings:
+    - ring1; fill; 0.3, yellow;
+    - ring2; fill; 0.3, pink;
+    - ring3; fill; 0.3, purple;
+    - dupRg1; fill; none; stroke, 0.3, magenta;
+    - dupRg2; fill; none; stroke, 0.3, magenta;
+    - dupRg3; fill; none; stroke, 0.3, magenta;
+  rects:
+    - rect1; stroke; 0.2, red; fill, none;
+    - rect2; stroke; 0.2, blue; fill, none; 
+    - rect3; stroke; 0.2, cc; fill, none;
+    - dupRect1; stroke; 0.2, magenta; fill, yellow, 0.3;
+    - dupRect2; stroke; 0.2, magenta; fill, yellow, 0.3;
+    - dupRect3; stroke; 0.2, magenta; fill, yellow, 0.3; radius; 3
+  ells:
+    - e3; stroke; 0.2, red; fill, none;
+    - e4; stroke; 0.2, blue; fill, none;
+    - pp2; stroke; 0.2, aqua; fill, none; 
+    - dupE1; fill; 0.2, white; stroke,1, red;
+    - dupE2; fill; 0.2, aqua; stroke, 1, red;
+
+  circles:
+    - c1; fill; 0.3, yellow; stroke,1 cc;
+    - c2; fill; 0.3, pink; stroke,1, blue;
+    - dupC1; fill; none; stroke, 0.3, magenta;
+    - dupC2; fill; none; stroke, 0.3, magenta;
+  lines:
+    - ls1; stroke, 1, cc; 
+    - dupLs1; stroke, 1, magenta;
+    - dupLs2; stroke, 1, aqua;
+  b3S:
+    - b3S; stroke,0.1, cc; fill, none;
+    #- b3SDupL; stroke, 0.4, magenta; fill, none;
+    - pp6; fill;cc; stroke, 1, magenta;
+    - b3SDupR; stroke, 1, magenta; fill, none;
+    - b3sDupR2; stroke, 1, magenta; fill, none;
+  polygon:
+    - plg1; fill, yellow, 0.3; stroke, 1, red;
+    - dupPlg2; fill, blue, 0.2; stroke,1, magenta;
+    - dupPlg3; fill, red, 0.2; stroke, 1, aqua;
+    - dupPlg4; fill, pink, 0.2; stroke,1, cc; dash; 3,3;
+    - dupPlg5; fill, yellow, 0.2; stroke,1, cc; dash; 3,3;
+  dupTri:
+    - tri1; fill, none; stroke, 1, cc;
+    - dupTri1; fill, none; stroke, 1, magenta;
+    - dupTri2; fill, none; stroke, 1, red;
+  ppp:
+    #- pp1; fill, none; stroke,1,red
+    #- pp2; fill, none; stroke, 1, red
+    #- pp5; fill, none; stroke, 1, red
+    - ppC1; fill, none; stroke, 0.5, blue;
+    - ppC1d2; fill, none; stroke,1, lime;
+    - ppC1d; fill, none; stroke, 1, magenta;

@@ -1,0 +1,49 @@
+
+name: angleUsage
+# Example WT-HUATU design file
+# --- Vars ------
+noTitle: yes
+
+vars:
+  lRay: 240
+
+markers:
+  arr1: arrow; size; 10
+
+# --- Points ------
+points:
+  pO: (0, 0)
+  pPxy: 100, 100
+  pL0: lRay * dcos(0), lRay * dsin(0)
+  pL1: lRay * dcos(33), lRay * dsin(33)
+  pL2: lRay * dcos(88), lRay * dsin(88)
+  pL3: lRay * dcos(167), lRay * dsin(167)
+  pL4: lRay * dcos(-58), lRay * dsin(-58)
+  pL5: lRay * dcos(243), lRay * dsin(243)
+
+# --- Shapes ------
+shapes:
+  lsX: line; pO; pL0.x + 30, pL0.y
+  ln0: line; pO; pL0
+  ln1: line; pO; pL1
+  ln2: line; pO; pL2
+  ln3: line; pO; pL3
+  ln4: line; pO; pL4
+  ln5: line; pO; pL5
+
+# --- Draw --------
+draw:
+  - angleMark; pL0; pO; pL1; arrow-solid;red;size; 96; showdeg; linewidth;2; anchor; tl;lw; 70; lh; 18; textColor; red;labelpos; 0.4
+  - angleMark; pL0; pO; pL2; arrow-solid;blue;size; 64; showdeg; linewidth;2; anchor; tl;lw; 60; lh; 32; textColor; blue; labelpos; 0.62
+  - angleMark; pL0; pO; pL3; arrow-solid;maroon;size; 32; showdeg; linewidth;2; anchor; tr;lw; 120; lh; 22;textColor; maroon; labelpos; 0.75
+  - angleMark; pL0; pO; pL4; arrow-solid;magenta;size; 40; linewidth;2; anchor; bl; label; $-58\degree$; lw; 80; lh; 18; textColor; magenta; labelpos; 0.35
+  - angleMark; pL0; pO; pL5; arrow-simple;indianred;size; 132; large; linewidth;2; anchor; br;showdeg; lw; 80; lh; 18; textColor; indianred; labelpos; 0.84
+  - ln1; fill, none; stroke; 1, red; marker; arr1
+  - ln2; fill, none; stroke; 1, blue; marker; arr1
+  - ln3; fill, none; stroke; 1, maroon; marker; arr1
+  - ln4; fill, none; stroke; 1, magenta; marker; arr1
+  - ln5; fill, none; stroke; 1, indianred; marker; arr1  
+  - lsX; fill, none; stroke; 2, cc; marker; arr1
+  - circ; pO; 6; ||| fill, cc;
+  - label; at; lsX.e; w; 25; h; 22; anchor; ml ||| $X$
+  - label; at; pO; w; 34; h; 22; anchor; br; offset; 0, 4||| $O$

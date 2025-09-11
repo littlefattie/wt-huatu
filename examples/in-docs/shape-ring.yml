@@ -1,0 +1,19 @@
+vars:
+  rIn: 80
+  thickness: 40
+points:
+  p0: 0,0
+shapes:
+  ring1: ring; p0; rIn; thickness + rIn
+
+cpoints2:
+  pIn1: ring1; in; 330
+  pOut1: ring1; out; 330
+  pOut2: ring1; out; 300
+
+draw:
+  - ring1; fill, yellow, 0.3; stroke, black; 3
+  - dimmark; p0; pIn1;  gap; 0; linepos;0; nostartbar; noendbar; linewidth;1; nostartarrow; label; $R_{in}$;
+  - dimmark; p0; pOut2; gap; 0; linepos;0; nostartbar; noendbar; linewidth;1; nostartarrow; left; label; $R_{out}$;
+  - dimmark; pIn1; pOut1; gap; 0; linepos; 0;nostartbar; noendbar; linewidth; 1; remotepos;  100, -100; lw; 54; lh; 14; textsize; 12; label; thickness
+  - circ; p0; 3 ||| fill, red;

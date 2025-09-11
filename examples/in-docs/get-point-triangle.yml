@@ -1,0 +1,67 @@
+# wt-huatu default empty file
+
+vars:
+
+points:
+  pA: 300, -300;
+  pB: -200, -40;
+  pC: 320, 140;
+
+shapes:
+  tri1: triangle; pA; pB; pC;
+  cIn1: circ; tri1.cin; tri1.rin;
+  cOut1: circ; tri1.cout; tri1.rout;
+  lsBc: ls; pB; pC;
+  lsAb: ls; pA; pB;
+
+cpoints:
+  cpIn: tri1; cin;
+  cpOut: tri1; cout;
+  cpG: tri1; cg; # cg could be cgravity
+  cpA: tri1; a;
+  cpB: tri1; b;
+  cpC: tri1; c;
+  cp1: tri1; 1;
+  cp2: tri1; 2;
+  cp3: tri1; 3;
+  cp1_3rd: tri1; 1; 1/3;
+  cp2_p4: tri1; 2; 0.4;
+  cp3_p7: tri1; 3; 0.7;
+
+pointSeries:
+  pAll: cpA; cpB; cpC;
+  psG: lsBc.m; lsAb.m;
+
+draw:
+  # The triangle
+  - tri1; stroke, 3, black; fill, none; linejoin; round;
+  - pAll; 6; blue; 0.6
+  - label; cpA; anchor; bl; w; 20; h; 30; ||| a
+  - label; cpB; anchor; mr; w; 30; h; 30; ||| b
+  - label; cpC; anchor; tl; w; 20; h; 20; ||| c
+  # inner circle
+  - circ; cpIn; 6 ||| fill, red
+  - label; cpIn; anchor; ml; w; 40; h; 20; ||| cin
+  - cIn1;  fill, none; stroke, 1, red;     dash, 3,3;
+  - dimmark; cpIn; cIn1.311; gap; 0; linepos; 0; nostartarrow; nostartbar; noendbar;lineWidth;2; linecolor; red; textcolor; red; label;  $R_{in}$
+  # outer circle
+  - circ; cpOut; 6 ||| fill, magenta
+  - label; cpOut; anchor; mr; w; 60; h; 20; ||| cout
+  - cOut1; fill, none; stroke, 1, magenta; dash, 4,4;
+  - dimmark; cpOut; cOut1.222; gap; 0; linepos; 0; nostartarrow; nostartbar; noendbar;lineWidth;2; linecolor; magenta; textcolor; magenta; label;  $R_{out}$
+  - ls; cpA; lsBc.m; ||| stroke, 1, black; dash, 3,3;
+  - ls; cpC; lsAb.m; ||| stroke, 1, black; dash, 3,3;
+  # Gravity Point
+  - circ; cpG; 6 ||| fill, black;
+  - label; cpG;   anchor; bm; w; 40; h; 50; ||| cg
+  - psG; 6; black;
+  # Point On Edges
+  - circ; cp1_3rd; 6; ||| fill, gold;
+  - label; cp1_3rd; anchor; br; w; 60; h; 20; color; gold ||| 1, 1/3
+  - dimmark; cp1; cp1_3rd; lineWidth; 1.5; barlen; 40; linepos; 0.7; label; $1/3L_{AB}$
+  - circ; cp2_p4; 6; ||| fill, gold;
+  - label; cp2_p4; anchor; tr; w; 60; h; 20; color; gold ||| 2, 0.4
+  - circ; cp3_p7; 6; ||| fill, gold;
+  - dimmark; cp2; cp2_p4; lineWidth; 1.5; barlen; 50; linepos; 0.8; label; $0.4L_{BC}$
+  - label; cp3_p7; anchor; bl;offset; 0, -8; w; 60; h; 20; color; gold ||| 3, 0.7
+  - dimmark; cp3; cp3_p7; lineWidth; 1.5; barlen; 40; linepos; 0.7; label; $0.7L_{CA}$

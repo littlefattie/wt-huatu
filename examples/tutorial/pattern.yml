@@ -1,0 +1,33 @@
+title: Test for Design Patterns
+desc: The example to build patterns
+
+vars:
+  r: 300
+  d: 300
+points:
+
+patterns:
+  ptn1: type;lines; density, 2; color; red; linewidth, 4; deg; -45;
+  ptn2: type;lines; density, 3; color; black; linewidth, 12; deg; 44; dashed;dashdensity; 33
+  ptn3: type;lines; density, 2; color; black; linewidth, 32; deg; 15; dotted;dashdensity; 23
+  ptnDots1:
+    type: circle
+    size: 8
+    color: grey
+    linewidth: 4
+  ptnGrid1:
+    type: grid
+    size: 22
+    color: grey
+    linewidth: 4
+    #sparsek: 4
+shapes:
+  c1: circle; 0,0; r
+  rect1: rect; byCenter; 0,0; d * 2; d
+draw:
+  - c1; pattern; ptn1;
+  - c1; move; (2*r, 0); pattern; ptn2;
+  - c1; move; (0, 3 * r); pattern; ptnDots1;
+  - rect1; move; (0, d/2 + r); pattern; ptnGrid1; stroke, 1, black
+  - rect1; move; (2*r, d/2 + r); pattern; ptn3; stroke, 1, black
+

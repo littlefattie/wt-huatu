@@ -1,0 +1,16 @@
+shapes:
+  line1: line; 0,0; -40
+  ls1: line; line1; -80; 180;
+cpoints:
+  cpO: line1; o
+  cpA: line1; a
+  cpL: line1; 120
+
+draw:
+  - circ; cpA; 15; ||| fill, green;
+  - circ; cpO; 10; ||| fill, black;
+  - circ; cpL; 5; ||| fill, blue;
+  - ls1; stroke,1,black; dash, 3,3
+  - label; cpO; anchor; tl; offset;  15,  15; w; 20;h;20; color; black; ||| o
+  - label; cpA; anchor; br; offset; -15, -15; w; 20;h;20; color; green; ||| a
+  - label; cpL; anchor; tl; offset;   3,   3; w; 40;h;20; color; blue;  ||| 120

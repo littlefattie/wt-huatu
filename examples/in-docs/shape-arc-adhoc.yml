@@ -1,0 +1,72 @@
+# wt-huatu default empty file
+# Example WT-HUATU design file
+
+
+# --- Vars ------
+vars:
+  r: 140
+  rx: r * 1.5
+  ry: r
+  deg1: 30
+  deg2: 120
+  deg3: 330
+  deg4: 160
+
+markers:
+  arrow1: arrow-simple; smooth; size; 4;
+
+# --- Points ------
+points:
+  pCenter: (0, 0)
+
+# --- Shapes ------
+shapes:
+  circ1: circle; pCenter; r
+  ell1: ell; pCenter; rx; ry;
+
+  arc1: arc;pCenter; r; r; 0; deg1; deg2; cw;
+  arc2: arc;pCenter; r; r; 0; deg3; deg4; ccw;
+  arc3: arc;pCenter; rx; ry; 0; deg1; deg2; cw;
+  arc4: arc;pCenter; rx; ry; 0; deg3; deg4; ccw;
+
+cpoints:
+  cpCirc1: circ1; deg1
+  cpCirc2: circ1; deg2
+  cpCirc3: circ1; deg3
+  cpCirc4: circ1; deg4
+  cpEll1:  ell1; deg1;
+  cpEll2:  ell1; deg2;
+  cpEll3:  ell1; deg3;
+  cpEll4:  ell1; deg4;
+
+blocks:
+  blkCircle:
+    - circ; pCenter; 4; ||| fill,red;
+    - circ1; stroke, 2, grey; dash; 3,3;fill,none;
+    - arc1; stroke, 6, red; opaque;0.4; fill, none; marker;arrow1;
+    #- arc2; stroke, 6, green; opaque; 0.5; fill, none;
+    - label; arc1.m; anchor; br; w; 30; h; 20; offset; 0, -20; ||| cw
+    #- label; arcCcw.m; anchor; tl; w; 30; h; 20; offset; 0, 15; ||| ccw
+    - circ; cpCirc1; 6; ||| fill, blue;
+    - label; cpCirc1; anchor; br; w; 60; h; 40 ||| point at deg1
+    - circ; cpCirc2; 6; ||| fill, blue;
+    - label; cpCirc2; anchor; tr; w; 60; h; 40 ||| point at deg2
+    - dimmark; pCenter; circ1.0; gap;0;linepos;0; nostartbar; noendbar; nostartarrow;left; label; $R$; linewidth; 2;
+  blkEllipse:
+    - circ; pCenter; 4; ||| fill,red;
+    - ell1; stroke, 2, grey; dash; 3,3; fill, none;
+    #- arc3; stroke, 6, maroon; opaque;0.4; fill, none;
+    - arc4; stroke, 6, royalblue; opaque; 0.5; fill, none; marker;arrow1;
+    #- label; arcCw2.m; anchor; br; w; 30; h; 20; offset; 0, -20; ||| cw
+    - label; arc4.m; anchor; tl; w; 30; h; 20; offset; 0, 15; ||| ccw
+    - circ; cpEll3; 6; ||| fill, blue;
+    - label; cpEll3; anchor; tr; w; 60; h; 40 ||| point at deg3
+    - circ; cpEll4; 6; ||| fill, blue;
+    - label; cpEll4; anchor; tr; w; 60; h; 40 ||| point at deg4
+    - dimmark; pCenter; ell1.0; gap;0;linepos;0; nostartbar; noendbar; nostartarrow; label; $R_x$; linewidth; 2; left;
+    - dimmark; pCenter; ell1.90; gap;0;linepos;0; nostartbar; noendbar; nostartarrow; label; $R_y$; linewidth; 2;
+
+# --- Draw --------
+draw:
+  - blkCircle;
+  - blkEllipse; move; 420, 0

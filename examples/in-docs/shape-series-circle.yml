@@ -1,0 +1,23 @@
+# wt-huatu default empty file
+
+shapes:
+  c1: circ; 0,0; 100;
+pointSeries:
+  psC1: c1; 0: 25: 280;
+shapeSeries:
+  ssC1: circ; psC1; 2: 1: 10; # 图形总数取决于数量最少的那个序列
+  ssC2: circ; psC1; 4;        # 图形总数取决于psC1的点的个数，
+                              # 如果序列中只有一个数，将复制扩展为
+                              # 与其他参数序列中个数最少的那个一样多
+
+blocks:
+  blkC1:
+    - c1; stroke, 1, black; dash, 3,3; fill, none;
+    - ssC1; fill, red;
+
+  blkC2:
+    - c1; stroke, 1, black; dash, 3,3; fill, none;
+    - ssC2; fill, red;
+draw:
+  - blkC1
+  - blkC2; move; 240, 0;

@@ -1,0 +1,112 @@
+
+vars:
+  R: 150
+  rx: 150
+  ry: rx * 0.76
+  deg1: -32
+points:
+  p0: 0,0
+shapes:
+  circ1: circ; p0; R
+  arc1:  arc;  circ1; -40; -170; ccw;
+  ell1:  ell;  p0; rx; ry; deg1;
+  arc2:  arc;  ell1;   20;  210;  cw;
+  arc1Arrow:  arc; arc1.c; R * 0.7; R * 0.7; 0; -60; -150; ccw
+  arc2Arrow:  arc; arc2.c; rx * 0.7; ry * 0.7; ell1.rotdeg; 48; 200; cw
+  ell2:  ell;  p0; rx * 1.2; ry; -deg1;
+
+  # Auxiliary lines
+  lnx: line; p0; 0;
+  lnRx: line; p0; deg1;
+  lnRy: line; p0; deg1 - 90;
+
+cpoints:
+  cpArc1C: arc1; c;    # `c` could be `center`
+  cpArc1S: arc1; s;    # `s` could be `start`
+  cpArc1E: arc1; e;    # `e` could be `end`
+  cpArc1M: arc1; m;    # `m` could be `mid` or `middle`
+  cpArc1P333: arc1; 0.333;
+
+  cpArc2C: arc2; c;
+  cpArc2S: arc2; s;
+  cpArc2E: arc2; e;
+  cpArc2M: arc2; m;
+  cpArc2P333: arc2; 0.333;
+  
+  pArc3Start: ell2; 25;
+  pArc3End: ell2; 100;
+
+pointSeries:
+  psArc1: cpArc1S; cpArc1M; cpArc1E; 
+  psArc2: cpArc2S; cpArc2M; cpArc2E; 
+
+shapes2:
+  arc3: arc; pArc3Start; rx * 1.2; ry; -deg1; small; ccw; pArc3End;
+  arc3Arrow:  arc; arc3.c; rx * 1.41; ry * 1.2; -deg1; 270; 220; ccw
+  ell3: ell; arc3.c; rx* 1.2; ry; -deg1;
+
+cpoints2:
+  cpArc3C: arc3; c;
+  cpArc3S: arc3; s;
+  cpArc3E: arc3; e;
+  cpArc3M: arc3; m;
+  cpArc3P333: arc3; 0.333;
+
+pointSeries2:
+  psArc3: cpArc3S; cpArc3M; cpArc3E; 
+
+blocks:
+  blkArc1:
+    - circ1; stroke,1, black; dash, 3,3; fill, none;
+    - arc1;  stroke, 6, royalblue; opaque, 0.6; fill, none;
+    - psArc1; 6; black;
+    - circ; cpArc1C;  6; ||| fill, blue
+    - circ; cpArc1P333; 6; ||| fill, red
+    - label; cpArc1C; w; 20; h;30; anchor; tm; ||| c
+    - label; cpArc1P333; w; 60; h;30; anchor; bl; ||| t=0.333
+    - label; cpArc1M; w; 20; h;30; anchor; tm; ||| m
+    - label; cpArc1S; w; 20; h;30; anchor; bl; ||| s
+    - label; cpArc1E; w; 30; h;30; anchor; mr; ||| e
+    - arc1Arrow; stroke, 1; black; fill, none; marker; arrow1;
+    - label; arc1Arrow.m; w; 30; h;30; anchor; tm; ||| ccw
+  blkArc2:
+    - ell1; stroke, 1, black; dash, 3,3; fill, none;
+    - arc2; stroke, 6, royalblue; opaque, 0.6; fill, none;
+    - psArc2; 6; black;
+    - circ; cpArc2C;  6; ||| fill, blue
+    - circ; cpArc2P333; 6; ||| fill, red
+    - label; cpArc2C; w; 20; h;30; anchor; tm; ||| c
+    - label; cpArc2P333; w; 60; h;30; anchor; tl; ||| t=0.333
+    - label; cpArc2M; w; 20; h;30; anchor; tm; ||| m
+    - label; cpArc2S; w; 20; h;30; anchor; bl; ||| s
+    - label; cpArc2E; w; 30; h;30; anchor; mr; ||| e
+    - arc2Arrow; stroke, 1; black; fill, none; marker; arrow1;
+    - label; arc2Arrow.m; w; 30; h;30; anchor; bm; offset; -12, -6; ||| ccw
+    # Auxiliary mark ellipse parameters
+    - line; lnx; -rx * 1.2; rx * 1.2 ||| stroke, 1, red; dash, 3,3;
+    - line; lnRx; -rx * 1.2; rx * 1.2 ||| stroke, 1, black; dash, 3,3; marker; arrow1;
+    - label; lnRx.180; w; 30; h; 30; anchor; bl; ||| $R_x$
+    - line; lnRy;-ry * 1.2; ry * 1.2 ||| stroke, 1, black; dash, 3,3;  marker; arrow1;
+    - label; lnRy.120; w; 45; h; 30; anchor; br; ||| $R_y$
+    - anglemark; lnx.20; lnx.a; lnRx.30; lineWidth; 2; size; 65;arrow-simple; labelpos; 0.3; label; rot_deg;  offset; 5, 0;
+  blkArc3:
+    - ell2; stroke, 1, black; dash, 3,3;fill, none;
+    - ell3; stroke, 1, red; dash, 3,3;fill, none;
+    - arc3; stroke, 6; royalblue; opaque, 0.6; fill, none;
+    - psArc3; 6; black;
+    - circ; cpArc3C;  6; ||| fill, blue
+    - circ; cpArc3P333; 6; ||| fill, red
+    - label; cpArc3C; w; 20; h;30; anchor; tm; ||| c
+    - label; cpArc3P333; w; 60; h;40; anchor; tm; ||| t=0.333
+    - label; cpArc3M; w; 20; h;30; anchor; tr; ||| m
+    - label; cpArc3S; w; 20; h;30; anchor; bl; ||| s
+    - label; cpArc3E; w; 30; h;30; anchor; mr; ||| e
+    - arc3Arrow; stroke, 1; black; fill, none; marker; arrow1;
+    - label; arc3Arrow.m; w; 80; h;30; anchor; bm; offset; -12, -6; rotdeg; 8; ||| ccw, small
+    # Auxillirary marks
+    - label; ell2.240; tm; h; 60; w; 80; ||| 起点和终点所在的椭圆
+    - label; ell3.110; anchor; ml; h; 60; w; 80; red ||| 圆弧定义出的圆
+draw:
+  - blkArc1
+  - blkArc2; move; R * 2.6, 0;
+  - blkArc3; move; R * 1.3, ry * 2.5;

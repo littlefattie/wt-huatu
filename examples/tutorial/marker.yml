@@ -1,0 +1,54 @@
+title: Test Marker Design
+desc: A sample design file to test the functionality of creating markers
+
+vars:
+  x: 400
+points:
+  pCorner: -x, x;
+markers:
+  sqr1: square; size; 6; red; stroke; black; strokewidth; 0.3
+  sqr2: square; size; 6; fill, aqua
+  sqr3: square; size; 16; fill, yellow; opacity; 0.4;stroke, cc;strokewidth;0.4
+  circ1: circle; r;3 ; stroke, black; strokewidth; 0.5; fill, aqua; opacity, 0.4
+  circ2: circle; r;6 ; strokewidth; 0.5; fill, purple; opacity, 0.4
+  tri1: triangle; size; 12; yellow; stroke;  blue; strokewidth; 1;
+  tri2: triangle; size; 6; yellow; stroke;  blue; strokewidth; 1;direction; right
+  tri3: triangle; width; 6; height, 12; black; direction; left
+  ell1: ell; rx; 6; ry; 12; fill; aqua; stroke; blue; strokewidth; 0.4; fillOpacity; 0.2;
+  star51: star; size; 10;centerempty;red;
+  rect1: rect; width; 10; height; 23; red; stroke; black; strokewidth; 0.4;  
+  rhb1: rhombus; width; 10; height; 23; red; stroke; black; strokewidth; 0.4;
+  plus1: plus; size; 22; red; stroke; black; strokewidth; 0.4;
+  cross1: cross; size, 6; red; stroke; black; strokewidth; 1;
+  startu1: staru; size, 12; n; 8;
+  startu2: staru; size, 12; n; 8; rIn; 6; rout; 9; degoffset; 12; red;
+  startu3: staru; size, 12; n; 8; rIn; 6; rout; 9; degoffset; 12; red;rx;2;
+  arrow1: arrow; len; 8; color; cc;
+  arrow2: arrow-double; len; 12; color; cc; k;0.4
+  arrow3: arrow-simple; len;10; cc; smooth
+  plg1: plg; n; 9; size; 10; blue;
+shapes:
+  line1: line; -300, -50; -200, 50; -100, -50; 100, 50; 200, -50; 300, 50; 
+  axisX: line; -x, x - 40; x, x - 40;
+  axisY: line; -x + 20, x - 20; -x + 20, -x;  
+  plg1: plgn; 8; (0,x/2); 100; 15; 
+ 
+draw:
+  - axisX; stroke, 2, black; marker; end, arrow1;
+  - axisX; move; 0, -30; stroke, 2, black; marker; end, arrow2;
+  - axisY; stroke, 2, black; marker; end, arrow1;
+  - line1; move; 0, -200; fill,none;stroke, 1, black; marker; start, startu1;mid, startu2; end, startu3;
+  - line1; move; 0, -150; fill,none;stroke, 1, black; marker;start, arrow1; mid, arrow2; end, arrow3;
+  - line1; move; 0, -100; fill,none;stroke, 1, black; marker;start, sqr1; mid, sqr2; end, sqr3;
+  - line1; move; 0, -50; fill,none;stroke, 1, black; marker; start, circ1, mid, circ2;
+  - line1; fill,none; stroke, 1, black; marker;start, tri1; mid, tri2;end;tri3;
+  - line1; move; 0,  50; fill,none;stroke, 1, black; marker; start, ell1;mid, ell1;
+  - line1; move; 0,  100; fill,none;stroke, 1, black; marker; start, star51;
+  - line1; move; 0,  150; fill,none;stroke, 1, black; marker; start, rect1;mid, rhb1;
+  - line1; move; 0,  200; fill,none;stroke, 1, black; marker; start, rhb1;mid, plus1;
+  - line1; move; 0,  250; fill,none;stroke, 1, black; marker; start, rect1;mid, cross1;
+
+  - line1; fill,none;stroke, 1, black;  
+  - line1; fill,none;stroke, 1, black;
+  - line1; fill,none;stroke, 1, black;
+  - plg1; stroke, 2, black; marker; start; startu3; mid, plg1; fill, yellow, 0.2; 

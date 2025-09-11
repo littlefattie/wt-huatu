@@ -1,0 +1,43 @@
+
+name: twoLinesIntersect
+vars:
+  deg: -33
+points:
+  pAnchor: 0,0
+  pAnchor2: 100, 30
+shapes:
+  lineH: line; pAnchor; 0
+  lineMain: line; pAnchor; deg
+  lsH: line; lineH; -15; 40
+  lsMain: line; lineMain; -20; 80
+  lineH2: line; pAnchor2; 0
+  lineMain2: line; pAnchor2; 44
+  lsH2: line; lineH2; -40; 20
+  lsMain2: line; lineMain2; 20; -100
+xpoints2:
+  pL1L2: lineMain; lineMain2
+blocks:
+  blkLine1:
+    - lsH; stroke, 0.8, black;
+    - lsMain; stroke, 1, black;
+    - label; at; pAnchor; anchor; br; offset; 3, -4; w; 54; h; 22; ||| $(x_1, y_1)$
+    - circle; pAnchor; 2 ||| fill, black
+  blkLine2:
+    - desc; line 2
+    - lsH2; stroke, 0.8, black;
+    - lsMain2; stroke, 1, black;
+    - label; at; pAnchor2; anchor; bl; offset; -3, -3; w; 54; h; 22; ||| $(x_2, y_2)$
+    - circle; pAnchor2; 2 ||| fill, black
+draw:
+  - size;500
+  - blkLine1
+  - blkLine2
+  - circle; pL1L2; 2 ||| fill, red
+  - label; at; pL1L2; anchor; ml; offset; 3, 0; w; 54; h; 22; ||| $(x, y)$
+  
+jobs:
+  line1:
+    - blkLine1
+  line2:
+    - desc; line 2
+    - blkLine2

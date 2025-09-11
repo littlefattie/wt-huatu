@@ -1,0 +1,47 @@
+
+# --- Points ------
+points:
+  p0: 0, 0
+  p1: p0.x + 120, p0.y - 170
+  p2: p1.x + 50, p1.y + 120
+  p3: p2.x + 120, p2.y + 120
+  p4: p3.x + 130, p3.y - 220
+  p5: p4.x + 116, p4.y + 120
+  p6: p5.x + 160, p5.y
+
+pointSeries:
+  ps1: p0; p1;  p2; p3; p4; p5; p6;
+# --- Shapes ------
+shapes:
+  pln1: pln; p0; p1; p2; p3; p4; p5; p6;
+
+cpoints:
+  cpStart:pln1; s;        # `s` could be `start`, or `first`
+  cpEnd:  pln1; end;      # `end` could be `e`, or `last`
+  cp3:    pln1; 3;
+  cp3_p4: pln1; 3; 0.4;
+
+# --- Draw --------
+draw:
+  - pln1; stroke, black, 2; linejoin; round; fill, none;
+  - label; p0; anchor; tl; w; 30; left; ||| $P_0$
+  - label; p1; anchor; bm; w; 30; h; 20;  ||| $P_1$
+  - label; p2; anchor; bl; w; 30; h; 20;  ||| $P_2$
+  - label; p3; anchor; tm; w; 30; h; 30;  ||| $P_3$
+  - label; p4; anchor; bm; w; 30; h; 20;  ||| $P_4$
+  - label; p5; anchor; tr; w; 30; h; 20;  ||| $P_5$
+  - label; p6; anchor; bm; w; 30; h; 30;  ||| $P_6$
+  - ps1; 4; red;
+  - line; pln1.3; pln1.4; ||| stroke, 8; royalblue; opaque; 0.6;
+  - label; cpStart; anchor; br; w; 50; left; ||| $P_{start}$
+  - circ; cpStart; 8; ||| fill, royalblue, 0.6;
+  - label; cpEnd; anchor; tm; w; 50; h; 40; ||| $P_{end}$
+  - circ; cpEnd;   8; ||| fill, royalblue, 0.6;
+  - circ; cp3;  8; ||| fill, royalblue, 0.6;
+  - label; cp3; anchor; tr; w; 50; h; 40; ||| $cp3$
+  - circ; cp3_p4; 8; ||| fill, maroon;
+  - label; cp3_p4; anchor; tr; w; 50; h; 40; ||| $3, 0.4$
+  - label; cp3_p4; anchor; ml; w; 60; h; 40; 
+    offset; 30,8; blue; ||| 多线段的第3段
+  - dimmark; cp3; p3; gap; 50; linewidth; 1.5; barwidth; 1.5; linepos; 0.5; label; $L$
+  - dimmark; cp3; cp3_p4; left; gap; 40; linewidth; 1.5; barwidth; 1.5; linepos; 0.5; label; $0.4L$

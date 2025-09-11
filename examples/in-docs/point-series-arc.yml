@@ -1,0 +1,21 @@
+# wt-huatu default empty file
+shapes:
+  arc1: arc; 0,0; 100; 80; 0; 330; 120; ccw;
+  ell1: ell; 0,0; 100; 80; 0;
+pointSeries:
+  ps1: arc1; 0.1, 0.2, 0.7;
+  ps2: arc1; 0.1: 0.15: 0.8;
+blocks:
+  blk1:
+    - ell1; stroke,1, black; dash, 3,3; fill, none;
+    - arc1; stroke, 4, royalblue; opaque; 0.6; fill, none;
+    - ps1; 4; black;
+
+  blk2:
+    - ell1; stroke,1, black; dash, 3,3; fill, none;
+    - arc1; stroke, 4, royalblue; opaque; 0.6; fill, none;
+    - ps2; 4; maroon;
+
+draw:
+  - blk1
+  - blk2; move; 250, 0;

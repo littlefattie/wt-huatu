@@ -1,0 +1,63 @@
+title: Five-Star
+desc: An example to draw five-star using Huatu-lib
+#config:
+#  showBBox: aqua
+vars:
+  r: 20
+  deg36: pi * 36 / 180
+  deg72: 2 * deg36
+  rIn: r * cos(deg72) / cos(deg36)
+  flagW: 1000
+  flgaH: 0.72 * flagW
+  degInterval: 25
+  degStart: -34
+  degRotateStart: degStart-90
+points:
+  pCenter: 0, 0
+  pTopLeft: -200, -200
+  pMainStar: pTopLeft.x + flagW * 0.18, pTopLeft.y + flgaH * 0.25
+shapes:
+  cR: circle; pCenter; r
+  cIn: circle; pCenter; rIn
+  cLittleStar: circle; pMainStar; flagW * 0.2
+cpoints2:
+  pcStar1: cLittleStar; degStart;
+  pcStar2: cLittleStar; degStart + degInterval;
+  pcStar3: cLittleStar; degStart + degInterval * 2;
+  pcStar4: cLittleStar; degStart + degInterval * 3;
+pointSeries:
+  psR: cR; -90: 72 : 260
+  psIn: cIn; -90 + 36 : 72 : 260 + 36
+shapes2:
+  fiveStar: plg; psR[1]; psIn[1]; psR[2]; psIn(2); psR(3); psIn(3); psR(4); psIn(4); psR(5); psIn(5)
+symbols:
+  star5:
+    - viewBox; -r, -r; 2 * r; 2 * r
+    - fiveStar;rotDeg;-90
+arrays:
+  fourStar: star5; polar; center; pMainStar; count; 4; startdeg; degStart; deltaDeg; degInterval; r; flagW * 0.2;scale;1.5;aligncenter
+blocks:
+  circles:
+    - cR; fill,  none; stroke, 0.5, red
+    - cIn; fill, none; stroke, 0.2, blue
+  stars:
+    - fiveStar; move; pMainStar.x - pCenter.x, pMainStar.y - pCenter.y; scale; 5; at; pMainStar
+    - fiveStar; move; pcStar1.x - pCenter.x, pcStar1.y - pCenter.y; scale; 1.5; rotDeg; degRotateStart; at; pcStar1;
+    - fiveStar; move; pcStar2.x - pCenter.x, pcStar2.y - pCenter.y; scale; 1.5; rotDeg; degRotateStart + degInterval; at; pcStar2;
+    - fiveStar; move; pcStar3.x - pCenter.x, pcStar3.y - pCenter.y; scale; 1.5; rotDeg; degRotateStart + 2 * degInterval; at; pcStar3;
+    - fiveStar; move; pcStar4.x - pCenter.x, pcStar4.y - pCenter.y; scale; 1.5; rotDeg; degRotateStart + 3 * degInterval; at; pcStar4;
+  flag:
+    - rect; pTopLeft; flagW; flgaH ||| fill, #de2910;
+    #- fiveStar; move; pMainStar; scale; 3; at; pMainStar
+    - stars; fill, yellow;
+    #- circle; pMainStar; 5; ||| fill, red;
+draw:
+  - circles;
+  - fiveStar; fill, grey, 0.6
+jobs:
+  flag:
+    - flag
+  flagWithSymbol:
+    - rect; pTopLeft; flagW; flgaH ||| fill, #de2910;
+    - fiveStar; move; pMainStar.x - pCenter.x, pMainStar.y - pCenter.y; scale; 5; at; pMainStar; fill, yellow;
+    - fourStar; fill; yellow

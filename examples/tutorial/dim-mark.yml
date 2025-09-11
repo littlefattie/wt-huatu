@@ -1,0 +1,277 @@
+# Example WT-HUATU design file
+
+
+# --- Vars ------
+vars:
+  a: 100
+  b: 300
+  c: 500
+  rArc: 100
+
+# --- Points ------
+points:
+  pdm11: a, b
+  pdm12: a+b, b+c
+  pdm21: a, -b
+  pdm22: a+b, -b-c
+  pdm31: -a, -b
+  pdm32: -a-b, -b-c
+  pdm41: -a, b
+  pdm42: -a-b, b+c
+  pcd1: -300, -300
+  pcd2: -202, pcd1.y
+  pcd3: pcd2.x + 102, pcd1.y
+  pcd4: pcd3.x + 80, pcd1.y
+  pcd5: 400, pcd1.y
+  pcdy1: 0, -400
+  pcdy2: pcdy1.x, pcdy1.y + 20
+  pcdy3: pcdy1.x, pcdy2.y + 120
+  pcdy4: pcdy1.x + 8, pcdy3.y + 42
+  pcdy5: pcdy1.x - 4, pcdy4.y + 72
+
+markers:
+  arrMk1: arrow; len; 12; color; cc;
+
+# --- Shapes ------
+shapes:
+  #c1: circle; pC1; a
+  #c2: circle; pC2; b
+  circ1: circ; pcdy1.x - rArc, pcdy1.y; rArc;
+  arc1: arc; circ1; 0; -90; ccw;
+
+pointSeries:
+  #psPdm: pdm1; pdm2; pdm3; pdm4
+  psPcd: pcd1; pcd2; pcd3; pcd4; pcd5;
+  psPcdy: pcdy1; pcdy2; pcdy3; pcdy4; pcdy5;
+
+blocks:
+  blkDmmkLine:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; line; dir; right;
+    - dimMark; pdm11; pdm12; label; left; type; line; dir; left;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; line; dir; right;
+    - dimMark; pdm21; pdm22; label; left; type; line; dir; left;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; line; dir; right;
+    - dimMark; pdm31; pdm32; label; left; type; line; dir; left;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; line; dir; right;
+    - dimMark; pdm41; pdm42; label; left; type; line; dir; left;
+  blkDmmkHori:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; hori; dir; right;
+    - dimMark; pdm11; pdm12; label; left; type; hori; dir; left;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; hori; dir; right;
+    - dimMark; pdm21; pdm22; label; left; type; hori; dir; left;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; hori; dir; right;
+    - dimMark; pdm31; pdm32; label; left; type; hori; dir; left;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; hori; dir; right;
+    - dimMark; pdm41; pdm42; label; left; type; hori; dir; left;
+  blkDmmkVert:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; vert; dir; right;
+    - dimMark; pdm11; pdm12; label; left; type; vert; dir; left;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; vert; dir; right;
+    - dimMark; pdm21; pdm22; label; left; type; vert; dir; left;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; vert; dir; right;
+    - dimMark; pdm31; pdm32; label; left; type; vert; dir; left;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; vert; dir; right;
+    - dimMark; pdm41; pdm42; label; left; type; vert; dir; left;
+  blkDmmkLineLoL:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; line; dir; right;labelOnline;
+    - dimMark; pdm11; pdm12; label; left; type; line; dir; left;labelOnline;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; line; dir; right;labelOnline;
+    - dimMark; pdm21; pdm22; label; left; type; line; dir; left;labelOnline;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; line; dir; right;labelOnline;
+    - dimMark; pdm31; pdm32; label; left; type; line; dir; left;labelOnline;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; line; dir; right;labelOnline;
+    - dimMark; pdm41; pdm42; label; left; type; line; dir; left;labelOnline;
+  blkDmmkLineRL:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; line; dir; right;rotateLabel;
+    - dimMark; pdm11; pdm12; label; left; type; line; dir; left;rotateLabel;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; line; dir; right;rotateLabel;
+    - dimMark; pdm21; pdm22; label; left; type; line; dir; left;rotateLabel;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; line; dir; right;rotateLabel;
+    - dimMark; pdm31; pdm32; label; left; type; line; dir; left;rotateLabel;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; line; dir; right;rotateLabel;
+    - dimMark; pdm41; pdm42; label; left; type; line; dir; left;rotateLabel;
+  blkDmmkLineLoLRL:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; $\alpha+\beta$; type; line; dir; right;labelOnline;rotateLabel;
+    - dimMark; pdm11; pdm12; label; left; type; line; dir; left;labelOnline;rotateLabel;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; line; dir; right;labelOnline;rotateLabel;
+    - dimMark; pdm21; pdm22; label; left; type; line; dir; left;labelOnline;rotateLabel;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; line; dir; right;labelOnline;rotateLabel;
+    - dimMark; pdm31; pdm32; label; left; type; line; dir; left;labelOnline;rotateLabel;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; line; dir; right;labelOnline;rotateLabel;
+    - dimMark; pdm41; pdm42; label; left; type; line; dir; left;labelOnline;rotateLabel;
+  blkDmmkHoriLoL:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; hori; dir; right;labelOnline;
+    - dimMark; pdm11; pdm12; label; left; type; hori; dir; left;labelOnline;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; hori; dir; right;labelOnline;
+    - dimMark; pdm21; pdm22; label; left; type; hori; dir; left;labelOnline;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; hori; dir; right;labelOnline;
+    - dimMark; pdm31; pdm32; label; left; type; hori; dir; left;labelOnline;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; hori; dir; right;labelOnline;
+    - dimMark; pdm41; pdm42; label; left; type; hori; dir; left;labelOnline;
+  blkDmmkVertLoL:
+    - circ; pdm11; 4; ||| fill, blue;
+    - circ; pdm12; 4; ||| fill, blue;
+    - line; pdm11; pdm12; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm11; pdm12; label; right; type; vert; dir; right;labelOnline;
+    - dimMark; pdm11; pdm12; label; left; type; vert; dir; left;labelOnline;
+    - circ; pdm21; 4; ||| fill, blue;
+    - circ; pdm22; 4; ||| fill, blue;
+    - line; pdm21; pdm22; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm21; pdm22; label; right; type; vert; dir; right;labelOnline;
+    - dimMark; pdm21; pdm22; label; left; type; vert; dir; left;labelOnline;
+    - circ; pdm31; 4; ||| fill, blue;
+    - circ; pdm32; 4; ||| fill, blue;
+    - line; pdm31; pdm32; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm31; pdm32; label; right; type; vert; dir; right;labelOnline;
+    - dimMark; pdm31; pdm32; label; left; type; vert; dir; left;labelOnline;
+    - circ; pdm41; 4; ||| fill, blue;
+    - circ; pdm42; 4; ||| fill, blue;
+    - line; pdm41; pdm42; ||| stroke,1,cc; marker; arrMk1;
+    - dimMark; pdm41; pdm42; label; right; type; vert; dir; right;labelOnline;
+    - dimMark; pdm41; pdm42; label; left; type; vert; dir; left;labelOnline;
+  blkHoriSeries:
+    - line; pcd1; pcd5; ||| stroke; 1.5; red;
+    - psPcd; 3; blue;
+    - dimMark; pcd1; pcd2; showLength; left; noEndbar;
+    - dimMark; pcd2; pcd3; showLength; left; noEndbar;
+    - dimMark; pcd3; pcd4; showLength; left; noEndbar;
+    - dimMark; pcd4; pcd5; showLength; left; label; $\delta + \sigma$; lw; 60;lh; 60; labelOnline;
+    - dimMark; pcd1; pcd1.x+20, pcd1.y; gap; 50; left; label; TooSmall; labelOnline; remotePos; pcd1.x + 14, pcd1.y - 80; textSize; 10; lw;50;lh;15;
+  blkSegmentSeries:
+    - line; pcdy1; pcdy2; pcdy3; pcdy4; pcdy5; ||| stroke, 1.5, red; fill, none;
+    - psPcdy; 3; blue;
+    - dimMark; pcdy1; pcdy2; showLength; left;
+    - dimMark; pcdy2; pcdy3; showLength; labelOnline; linepos; 0.8;
+    - dimMark; pcdy3; pcdy4; showLength; left; lenDigits; 2; labelOnline;
+    - dimMark; pcdy4; pcdy5; showLength; left; lenDigits; 3; labelOnline;
+  blkVertSeries:
+    - line; pcdy1; pcdy2; pcdy3; pcdy4; pcdy5; ||| stroke, 1.5, red; fill, none;
+    - psPcdy; 3; blue;
+    - circ; arc1.e; 3 ||| fill, red;
+    - dimMark; pcdy1; pcdy2; vert; showLength; left; barLen; 32; noEndbar; linepos; 0.59;
+    - dimMark; pcdy2; pcdy3; vert; showLength; left; arrow; solid; barLen; 32; noEndbar; linepos; 0.59;label; $\sigma+\Delta x$; textColor; red; lineColor; maroon;barColor; green;barWidth; 2
+    - dimMark; pcdy3; pcdy4; vert; showLength; left; noEndbar;
+    - dimMark; pcdy4; pcdy5; vert; showLength; left;
+    - circ1; fill, lightgrey; 0.3; 
+    - arc1; fill, none; stroke, 1, red;
+    - line; arc1.e; pcdy1.x - rArc, pcdy1.y - rArc - 32; ||| stroke,0.5,cc;
+    - angleMark; arc1.s; circ1.c; arc1.e; arrow-simple; startArrow; size; circ1.r + 21; lineWidth; 1; showDeg;
+
+# --- Draw --------
+draw:
+  - rect; -a-b, -b-c; a+b, b+c; ||| fill, #999, 0.2
+  - rect; -a, -b; a,b; ||| fill, maroon, 0.3
+  - circ; 0,0; 12 ||| fill, cc;
+  - line; pdm11; pdm12 ||| stroke, 2, cc; marker; arrMk1;
+  - line; pdm21; pdm22 ||| stroke, 2, cc; marker; arrMk1;
+  - line; pdm31; pdm32 ||| stroke, 2, cc; marker; arrMk1;
+  - line; pdm41; pdm42 ||| stroke, 2, cc; marker; arrMk1;
+
+jobs:
+  dmmkLine:
+    - blkDmmkLine;
+  dmmkHori:
+    - blkDmmkHori;
+  dmmkVert:
+    - blkDmmkVert;
+  dmmkLinelol:
+    - blkDmmkLineLoL;
+  dmmkLineRL:
+    - blkDmmkLineRL;
+  dmmkLinelolRL:
+    - blkDmmkLineLoLRL;
+  dmmkHorilol:
+    - blkDmmkHoriLoL;
+  dmmkVertlol:
+    - blkDmmkVertLoL;
+  dmmkHoriSeries:
+    - blkHoriSeries;
+  dmmkVertSeries:
+    - blkVertSeries;
+  dmmkSegmengs:
+    - blkSegmentSeries;
+    

@@ -1,0 +1,38 @@
+pointSeries:
+  ps1: 0, 0; 10, 10; 30, -10; 50, 10; 70, -10; 90, 10; 100, 0
+  ps2: 0, 0; 0, 12; 15,12; 15, -12; 22, -12; 22, 6; 33, -9; 44, -9
+  ps3: 0, 0; 13, 2; 20, -4; 22, 8; 30, -2; 44, 4; 45, -30; 48, 2; 54, -2; 67, 7
+shapes2:
+  pln1: polyline; ps1;ps
+  pln2: polyline; ps2;ps 
+  pln3: polyline; ps3; ps
+shapeSeries2:
+  ps1Dots: circle; ps1; 0.3
+  ps2Dots: circle; ps2; 0.2
+  ps3Dots: circle; ps3; 0.6
+draw:
+  - pln1; stroke, 0.1, black; fill, none;
+  - pln1; stroke, 0.1, #c00; fill, none;smooth,2
+  - pln1; stroke, 0.1, #aaa; fill, none;move; 0, -10;smooth,1
+  - pln1; stroke, 0.1, #999; fill, none;move; 0, -20;smooth,2
+  - pln1; stroke, 0.1, #888; fill, none;move; 0, -30;smooth,3
+  - pln1; stroke, 0.1, #777; fill, none;move; 0, -40;smooth,4
+  - pln1; stroke, 0.1, #666; fill, none;move; 0, -50;smooth,5
+  - pln1; stroke, 0.1, #555; fill, none;move; 0, -60;smooth,6
+  - pln1; stroke, 0.1, #444; fill, none;move; 0, -70;smooth,7
+  - pln1; stroke, 0.1, #333; fill, none;move; 0, -80;smooth,8
+  - pln1; stroke, 0.1, #222; fill, none;move; 0, -90;smooth,9
+  - pln1; stroke, 0.1, #111; fill, none;move; 0, -100;smooth,10
+  - pln2; stroke, 0.1, red; fill, none;smooth, 1
+  - pln2; stroke, 0.1, aqua; fill, none;smooth, 3, xy
+  - pln2; stroke, 0.1, aqua; fill, none;smooth, 3;move; 0, 30
+  - pln2; stroke, 0.1, blue; fill, none;smooth, 8, xy;
+  - circle; 50, -30; 20 ||| fill, maroon,opacity; stroke, 4, red; opaque; 0.3
+  - ps1Dots; fill; black;
+  - ps2Dots; fill; purple;
+jobs:
+  steepTest:
+    - ps3Dots; fill, grey
+    - pln3; stroke, 0.1, #c00; fill, none;
+    - pln3; stroke, 0.1, #0c0; fill, none;smooth, 4
+    - pln3; stroke, 0.1, #00c; fill, none;smooth, 4, xy

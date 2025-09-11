@@ -1,0 +1,32 @@
+# --- Vars ------
+vars:
+  a: 3
+  b: 4
+
+# --- Points ------
+points:
+  p0: 0, 0
+  p1: p0.x + 120, p0.y - 170
+  p2: p1.x + 50, p1.y + 120
+  p3: p2.x + 120, p2.y + 120
+  p4: p3.x + 130, p3.y - 220
+  p5: p4.x + 116, p4.y + 120
+  p6: p5.x + 180, p5.y
+
+pointSeries:
+  ps1: p0; p1;  p2; p3; p4; p5; p6;
+# --- Shapes ------
+shapes:
+  pln1: pln; p0; p1; p2; p3; p4; p5; p6;
+  
+# --- Draw --------
+draw:
+  - pln1; stroke, black, 2; linejoin; round; fill, none;
+  - label; p0; anchor; tl; w; 30; left; ||| $P_0$
+  - label; p1; anchor; bm; w; 30; h; 20;  ||| $P_1$
+  - label; p2; anchor; bl; w; 30; h; 20;  ||| $P_2$
+  - label; p3; anchor; tm; w; 30; h; 30;  ||| $P_3$
+  - label; p4; anchor; bm; w; 30; h; 20;  ||| $P_4$
+  - label; p5; anchor; tr; w; 30; h; 20;  ||| $P_5$
+  - label; p6; anchor; bm; w; 30; h; 30;  ||| $P_6$
+  - ps1; 4; red;

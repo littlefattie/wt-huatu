@@ -1,0 +1,39 @@
+
+vars:
+  R: 200
+  degOfStart: -20
+markers:
+  arrow1: arrow-solid; size; 10;
+
+# --- Points ------
+points:
+  pCenter: 0,0
+  pXplus: R * 1.4, 0
+
+# --- Shapes ------
+shapes:
+  nplgn1: plgn; 7; pCenter; R; degOfStart
+
+cpoints:
+  pR1: nplgn1; 7;
+  pR2: nplgn1; 1;
+
+# --- Draw --------
+draw:
+  - nplgn1; stroke, 3, black; fill, none;
+  - line; pCenter; pXplus; ||| stroke, 1, grey; dash, 3,3; marker; arrow1;
+  #- line; pCenter; pR2; ||| stroke, 1, black; 
+  - dimMark; pCenter; pR2; gap; 0; linepos; 0; nostartbar; noendbar; linewidth; 2; nostartarrow;left; label; $R$; 
+  - label; pXplus; anchor; br; w; 20; h; 25; ||| $X$ 
+  - label; pCenter; anchor; tr; w; 60; h; 25; ||| $P_{center}$
+  - label; pCenter.x, pCenter.y - 100; anchor; center; w; 160; h; 20; ||| 正$N$边形 ($N=7$)
+  - anglemark; pXplus; pCenter; pR2; size; 70; linewidth; 2; arrow-solid; lw; 150; labelpos; 0.3;  offset; 5, 0;label; deg_of_start 
+  - circ; pCenter; 4 ||| fill, red;
+  - label; nplgn1.1; anchor; bl; w; 25; ||| $P_1$
+  - label; nplgn1.2; anchor; tl; w; 20; h; 20; ||| $P_2$
+  - label; nplgn1.3; anchor; tm; w; 20; h; 20; ||| $P_3$
+  - label; nplgn1.4; anchor; tr; w; 20; h; 20; ||| $P_4$
+  - label; nplgn1.5; anchor; mr; w; 25; h; 20; ||| $P_5$
+  - label; nplgn1.6; anchor; br; w; 25; ||| $P_6$
+  - label; nplgn1.7; anchor; bl; w; 30; ||| $P_7$
+  

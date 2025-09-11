@@ -1,6 +1,5 @@
-<div style="text-align:center;">
-  <svg data-v-ab95988f="" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-5.45 -5.6 10.9 11.2" width="141.70000000000002" height="145.6"><polyline points="-2.250,5.0 -4.850,5.0 -4.850,-5.0 -2.250,-5.0 -2.250,-1.180 2.250,-1.180 2.250,-5.0 4.850,-5.0 4.850,5.0 2.250,5.0 2.250,1.180 -2.250,1.180 -2.250,3.180" fill="#0b4d4233" stroke="currentColor" stroke-width="0.4"></polyline><circle cx="-2.250" cy="5.0" r="0.40" fill="black"></circle><circle cx="-2.250" cy="1.180" r="0.40" fill="black"></circle><circle cx="-2.250" cy="3.180" r="0.40" fill="red"></circle></svg>
-</div>
+
+![wt-huatu logo](https://wt-huatu.org/imgs/svgs/wt-huatu-logo.svg)
 
 `wt-huatu`, is a Drawing Library to draw something mathematically, logically, hierarchically and programmatically.
 
@@ -57,71 +56,7 @@ draw:
 
 to some SVG image like this:
 
-<div  style="text-align:center;">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-118.05806756909202 -120.4116135138184 334.17420270727604 221.2116135138184" width="334.174" height="221.212">
-<defs>
-  <style type="text/css">
-    foreignObject &gt; body { margin: 0; width: 100%; height: 100%; }
-    .wthuatu-label-box-2b25127a { fill: none; }
-    .huatu-label-container-2b25127a { width: 100%; height: 100%; padding: 0; display: flex; }
-    .huatu-label-text-2b25127a { margin: auto 0; text-align: center; max-height: 100%; width: 100%; line-height: 1.0; }
-  </style>
-</defs>
-<circle cx="0.000000" cy="0.000000" r="100.000000" fill="none" stroke="currentColor" stroke-width="1.000000"></circle>
-<circle cx="98.058068" cy="-19.611614" r="100.000000" fill="none" stroke="currentColor" stroke-width="1.000000"></circle>
-<path d="M0.000000,0.000000 L98.058068,-19.611614 L32.044878,-94.726584 z" fill="yellow" stroke="currentColor" stroke-width="1.000000"></path>
-<circle cx="0.000000" cy="0.000000" r="3.000000" fill="grey"></circle>
-<circle cx="98.058068" cy="-19.611614" r="3.000000" fill="grey"></circle>
-<circle cx="32.044878" cy="-94.726584" r="3.000000" fill="grey"></circle>
-<circle cx="-98.058068" cy="19.611614" r="3.000000" fill="grey"></circle>
-<circle cx="196.116135" cy="-39.223227" r="3.000000" fill="grey"></circle>
-<g transform="translate(-20.000000,-11.000000)">
-<foreignObject x="0" y="0" width="20" height="22">
-<div class="huatu-label-container-2b25127a">
-<div class="huatu-label-text-2b25127a">
-<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span>
-</div>
-</div>
-</foreignObject>
-</g>
-<g transform="translate(0.000000,-11.000000)">
-<foreignObject x="98.05806756909202" y="-19.611613513818398" width="20" height="22">
-<div class="huatu-label-container-2b25127a">
-<div class="huatu-label-text-2b25127a">
-<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>
-</div>
-</div>
-</foreignObject>
-</g>
-<g transform="translate(-10.000000,-22.000000)">
-<foreignObject x="32.044878272377076" y="-94.72658431775389" width="20" height="22">
-<div class="huatu-label-container-2b25127a">
-<div class="huatu-label-text-2b25127a">
-<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span>
-</div>
-</div>
-</foreignObject>
-</g>
-<g transform="translate(-20.000000,0.000000)">
-<foreignObject x="-98.05806756909202" y="19.611613513818384" width="20" height="22">
-<div class="huatu-label-container-2b25127a">
-<div class="huatu-label-text-2b25127a">
-<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>
-</div>
-</div>
-</foreignObject>
-</g>
-<g transform="translate(0.000000,-22.000000)">
-<foreignObject x="196.11613513818403" y="-39.223227027636796" width="20" height="22">
-<div class="huatu-label-container-2b25127a">
-<div class="huatu-label-text-2b25127a">
-<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span>
-</div>
-</div>
-</foreignObject>
-</g>
-</svg>
-</div>
+![wt-huatu example of introduction](https://wt-huatu.org/imgs/svgs/wt-huatu-ex-intro.svg)
 
 There are some examples in the folder `examples`, which are used as the library is developed. They are simply `.yml` files, except some special syntax.
 
@@ -146,7 +81,7 @@ import {
   renderYmlInput
 } from "wt-huatu";
 
-import * as fs from "fs";
+import fs from "fs";
 
 // 设计输入
 // The design input file
@@ -198,26 +133,26 @@ draw:
 
 // 用例1：直接生成嵌入svg文件的Html文件(字符串),可直接在浏览器中查看及打印。
 // Usage 1: Generate the svg-image-embedded html directly, you can browse it in a browser.
-const svgHtml1 = renderWtHuatuYml(htDesignInput);
+const svgHtml1 = await renderWtHuatuYml(htDesignInput);
 fs.writeFileSync("./test-wt-huatu.html", svgHtml1);
 
 // 用例2：编译解析后获取完全体结果
 // Usage 2: Render the input to get a full-functional Object `WtHuatu`
-const parsedRes = renderYmlInput(htDesignInput, {});
+const parsedRes = await renderYmlInput(htDesignInput, {});
 // WtHuatu对象, 可以查看其所有成员变量，以便于进行二次开发
 // 或者选择性生成全部或部分所设计/定义的图形元素
-// The parsed WtHuatu object, you can inspect all the members and call the methods, make secondary developments or intergrate into your own applications
+// The parsed WtHuatu object, you can inspect all the members and call the methods,
+// make secondary developments or intergrate into your own applications,
 // Or you can use this object to generate part or all the designed drawing elements ever designed
-const htObj = parsedRes.huatu!;
+const htObj = parsedRes.huatu;
 // 从唯一的输出任务(draw)生成svg文件(字符串)，可以将此SVG文件保存为单独的文件或者嵌入到
 // 其他支持SVG格式的图形处理软件中
 // Output the svg file of the only job `draw`, you can save this to seperate file
 // Or embed itinto other systems that can handle SVGs.
-const svg1 = parsedRes.rendered.find(x => x.jobName === 'draw')!.html;
+const svg1 = parsedRes.rendered.find(x => x.jobName === 'draw').html;
 // 保存svg到文件
 // Save to local SVG format image file
 fs.writeFileSync("./test-wt-huatu.svg", svg1);
-
 ```
 
 If you are interested, let's draw!

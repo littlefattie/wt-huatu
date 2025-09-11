@@ -1,0 +1,9 @@
+<svg data-v-ab95988f="" version="1.1" xmlns="http://www.w3.org/2000/svg"
+    viewBox="-5.45 -5.6 10.9 11.2" width="141.70000000000002" height="145.6">
+    <polyline
+        points="-2.250,5.0 -4.850,5.0 -4.850,-5.0 -2.250,-5.0 -2.250,-1.180 2.250,-1.180 2.250,-5.0 4.850,-5.0 4.850,5.0 2.250,5.0 2.250,1.180 -2.250,1.180 -2.250,3.180"
+        fill="#0b4d4233" stroke="currentColor" stroke-width="0.4"></polyline>
+    <circle cx="-2.250" cy="5.0" r="0.40" fill="black"></circle>
+    <circle cx="-2.250" cy="1.180" r="0.40" fill="black"></circle>
+    <circle cx="-2.250" cy="3.180" r="0.40" fill="red"></circle>
+</svg>

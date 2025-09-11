@@ -1,5 +1,5 @@
 
-![wt-huatu logo](https://wt-huatu.org/imgs/svgs/wt-huatu-logo.svg)
+![wt-huatu logo](./imgs/wt-huatu-logo.svg)
 
 `wt-huatu`, is a Drawing Library to draw something mathematically, logically, hierarchically and programmatically.
 
@@ -56,7 +56,7 @@ draw:
 
 to some SVG image like this:
 
-![wt-huatu example of introduction](https://wt-huatu.org/imgs/svgs/wt-huatu-ex-intro.svg)
+![wt-huatu example of introduction](./imgs/wt-huatu-ex-intro.svg)
 
 There are some examples in the folder `examples`, which are used as the library is developed. They are simply `.yml` files, except some special syntax.
 

@@ -1,0 +1,80 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-118.05806756909202 -120.4116135138184 334.17420270727604 221.2116135138184" width="334.2" >
+<defs>
+<style type="text/css"><![CDATA[
+foreignObject > body { margin: 0; width: 100%; height: 100%; }
+.wthuatu-label-box-3605fca8 { fill: none; }
+.huatu-label-container-3605fca8 { width: 100%; height: 100%; padding: 0; display: flex; }
+.huatu-label-text-3605fca8 { margin: auto 0; text-align: center; max-height: 100%; width: 100%; line-height: 1.0; }
+
+]]></style>
+
+</defs>
+<circle cx="0.000000" cy="0.000000" r="100.000000" fill="none" stroke="currentColor" stroke-width="1.000000"  />
+<circle cx="98.058068" cy="-19.611614" r="100.000000" fill="none" stroke="currentColor" stroke-width="1.000000"  />
+<path d="M0.000000,0.000000 L98.058068,-19.611614 L32.044878,-94.726584 z" fill="yellow" stroke="currentColor" stroke-width="1.000000"  />
+<circle cx="0.000000" cy="0.000000" r="2.000000" fill="grey"  />
+<circle cx="98.058068" cy="-19.611614" r="2.000000" fill="grey"  />
+<circle cx="32.044878" cy="-94.726584" r="2.000000" fill="grey"  />
+<circle cx="-98.058068" cy="19.611614" r="2.000000" fill="grey"  />
+<circle cx="196.116135" cy="-39.223227" r="2.000000" fill="grey"  />
+<g transform="translate(-20.000000,-11.000000)" >
+
+<foreignObject x="0" y="0" width="20" height="22">
+<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="huatu-label-container-3605fca8" >
+<div class="huatu-label-text-3605fca8" >
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span>
+</div>
+</div>
+</body>
+</foreignObject>
+</g>
+<g transform="translate(0.000000,-11.000000)" >
+
+<foreignObject x="98.05806756909202" y="-19.611613513818398" width="20" height="22">
+<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="huatu-label-container-3605fca8" >
+<div class="huatu-label-text-3605fca8" >
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>
+</div>
+</div>
+</body>
+</foreignObject>
+</g>
+<g transform="translate(-10.000000,-22.000000)" >
+
+<foreignObject x="32.044878272377076" y="-94.72658431775389" width="20" height="22">
+<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="huatu-label-container-3605fca8" >
+<div class="huatu-label-text-3605fca8" >
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span>
+</div>
+</div>
+</body>
+</foreignObject>
+</g>
+<g transform="translate(-20.000000,0.000000)" >
+
+<foreignObject x="-98.05806756909202" y="19.611613513818384" width="20" height="22">
+<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="huatu-label-container-3605fca8" >
+<div class="huatu-label-text-3605fca8" >
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>
+</div>
+</div>
+</body>
+</foreignObject>
+</g>
+<g transform="translate(0.000000,-22.000000)" >
+
+<foreignObject x="196.11613513818403" y="-39.223227027636796" width="20" height="22">
+<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="huatu-label-container-3605fca8" >
+<div class="huatu-label-text-3605fca8" >
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span>
+</div>
+</div>
+</body>
+</foreignObject>
+</g>
+</svg>

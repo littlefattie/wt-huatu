@@ -3103,7 +3103,7 @@ export class WtHuatu implements IHuatu {
     }
   }
 
-  resolveWireTerminal(def?: string): IHuatuComponentPortSettled | IHuatuPoint | ISvgPoint | undefined {
+  resolveWireTerminal(def?: string): IHuatuComponentPortSettled | ISvgPoint | undefined {
     if (!def) return undefined;
     // 1. Check if Component (placement) 's port
     const tryPlacementCall = /^([a-z][a-z0-9_]*)[.]([0-9a-zA-Z]+)$/i.exec(def);
@@ -3121,11 +3121,11 @@ export class WtHuatu implements IHuatu {
         }
       }
     }
+    // 2. Check if it is a point referencing some shape/path, etc, or purely some point definition
     const tryPointExpr = this.resolvePointFromExpr(def);
     if (tryPointExpr) return tryPointExpr;
     
-    // TODO: implement it
-    // 2. Check if it is a point referencing some shape/path, etc, or purely some point definition
+    // Return none if no hit
     return undefined;
   }
 
@@ -3155,7 +3155,16 @@ export class WtHuatu implements IHuatu {
     if (params.to) {
       termTo = this.resolveWireTerminal(params.to);
       if (!termTo) {
-        errMsg.push(`Wire terminal 'To' (${params.to}) cannot resolve to a valid point!`);
+        if (HuatuWire.TO_HV_TYPES.includes((params.type || "auto").toLowerCase())) {
+          const tryXorY = this.resolvePointCoorsExpr(params.to);
+          if (tryXorY === undefined) {
+            errMsg.push(`Please specify X/Y values when you draw a toX or toY wire!`);
+          } else {
+            termTo = tryXorY;
+          }
+        } else {
+          errMsg.push(`Wire terminal 'To' (${params.to}) cannot resolve to a valid point!`);
+        }
       }
     }
     if (errMsg.length > 0) return errMsg.join("\n");
@@ -3197,6 +3206,14 @@ export class WtHuatu implements IHuatu {
         this.warnings.push(`TurnAt parameter '${params.turnY}' of wire def is invalid, it cannot resolve to a Point!`);
       } else {
         wire.turnAt = turnAt;
+      }
+    }
+    if (params.turnLen) {
+      const turnLen = this.resolveVarExpr(params.turnLen);
+      if (turnLen === undefined) {
+        this.warnings.push(`turnLen parameter '${params.turnLen}' of wire def is invalid, it cannot resolve to a number!`);
+      } else {
+        wire.turnLen = turnLen;
       }
     }
     if (params.net) {

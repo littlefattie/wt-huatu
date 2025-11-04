@@ -58,6 +58,7 @@ export interface IHuatuWireDefParams {
   turnX?: string;
   turnY?: string;
   turnAt?: string;
+  turnLen?: string;
   net?: string;
   lineWidth?: string;
   color?: string;
@@ -72,13 +73,15 @@ export class HuatuWire implements IHuatuWire {
   pointFrom?: ISvgPoint;
   portTo?: IHuatuComponentPortSettled;
   pointTo?: ISvgPoint;
-  type: "auto" | "line" | "hv" | "vh" | "hvh" | "vhv" | "hvhv" | "hvhvh" | "vhvh" | "vhvhv" | string;
+  xyTo?: number;
+  type: "auto" | "line" | "tox" | "tov" | "toy" | "toh" | "hv" | "vh" | "hvh" | "vhv" | "hvhv" | "hvhvh" | "vhvh" | "vhvhv" | string;
   radius?: number | number[];    // Corner radius of the h-to-v/v-to-h lines
 
   turn?: number;
   turnX?: number;
   turnY?: number;
   turnAt?: ISvgPoint;
+  turnLen?: number;
 
   xMin?: number;
   xMax?: number;
@@ -114,8 +117,8 @@ export class HuatuWire implements IHuatuWire {
   freeEnd?: ISvgPoint;
 
   constructor(
-    from: IHuatuComponentPortSettled | IHuatuPoint | ISvgPoint,
-    to?: IHuatuComponentPortSettled | IHuatuPoint | ISvgPoint,
+    from: IHuatuComponentPortSettled | ISvgPoint,
+    to?:  IHuatuComponentPortSettled | ISvgPoint | number,
     type?: string
   ) {
     this.magicId = genHex(8);
@@ -124,9 +127,11 @@ export class HuatuWire implements IHuatuWire {
     } else {
       this.pointFrom = SvgPoint.from(from as ISvgPoint);
     }
-    if (to) {
+    if (to !== undefined) {
       if (HuatuWire.isComponentPort(to)) {
         this.portTo = to as IHuatuComponentPortSettled;
+      } else if (typeof to === "number") {
+        this.xyTo = to;
       } else {
         this.pointTo = SvgPoint.from(to as ISvgPoint);
       }
@@ -138,6 +143,10 @@ export class HuatuWire implements IHuatuWire {
       this.type = "auto";
     }
     // Try Resolve points
+    // NOTE: This step will not be executed here, because other additional info has not been resolved
+    // It will be called by Huatu body after other parameters parsed and ready
+    // The line here is just a reminder to tell that this function will handle the real points
+    // that compose the wire.
     //this.tryResolvePoints();
   }
 
@@ -167,8 +176,10 @@ export class HuatuWire implements IHuatuWire {
     }
     const xStart = this.startPoints[this.startPoints.length - 1].x,
           yStart = this.startPoints[this.startPoints.length - 1].y,
-          xEnd   = this.endPoints[0].x,
-          yEnd   = this.endPoints[0].y;
+          xEnd   = this.endPoints[0]?.x,
+          yEnd   = this.endPoints[0]?.y;
+    let turnX, turnY;
+    let turnX1, turnY1, turnX2, turnY2;
     // Resolve the middle points
     if (this.net) {
       if (this.portFrom && this.portTo &&
@@ -188,190 +199,378 @@ export class HuatuWire implements IHuatuWire {
         this.freeStart = SvgPoint.from(this.startPoints[this.startPoints.length - 1]);
         this.freeEnd = SvgPoint.from(this.endPoints[0]);
       }
+      // TODO: more code needed to resolve NET RELATED stuff
+
     } else {
-      // There is no net involved, just resolve it as some line connecting two points
-      if (this.portFrom && this.portTo && HuatuComponentPort.isTwoPortsParallel(this.portFrom, this.portTo)) {
-        // If both ends are Component Ports, then treat them with special consideration
-        if (HuatuComponentPort.isTwoPortsOnSameLine(this.portFrom, this.portTo) &&
-            HuatuComponentPort.isTwoPortsFacing(this.portFrom, this.portTo))
-        {
-            // If they are facing to each other, then just connect them
-            this.startPoints = [SvgPoint.from(this.portFrom.anchor)];
-            this.midPoints1 = [];
-            this.midPoints2 = [];
-            this.endPoints = [SvgPoint.from(this.portTo.anchor)];
-        } else {
-          const lineFrom = new Line(this.portFrom.freeStart, this.portFrom.lineAng);
-          const lineTo   = new Line(this.portTo.freeStart,   this.portTo.lineAng);
-          const lsFromTo = new LineSeg(this.portFrom.anchor, this.portTo.freeStart);
-          const isFromToCw = AngDeg.isFromToCw(this.portFrom.lineAng, lsFromTo.ang);
-          // lineP here means Line Perpendicular
-          const linePAtFrom = new Line(this.portFrom.freeStart, this.portFrom.lineAng + (isFromToCw ? AngDeg.DEG90 : -AngDeg.DEG90));
-          const linePAtTo = new Line(this.portTo.freeStart, this.portTo.lineAng + (isFromToCw ? -AngDeg.DEG90 : AngDeg.DEG90));
-          if (HuatuComponentPort.isTwoPortsFacing(this.portFrom, this.portTo)) {
-            // Facing but not on same line
-            const px = Line.getXPoint(linePAtTo, lineFrom)!;
-            const len = new LineSeg(this.portFrom.freeStart, px).len;
-            const lenTaken = getXBetween(this.turn !== undefined ? this.turn : 1/2, 0, len);
-            const pFrom = lineFrom.getPointByLen(lenTaken);
-            const pTo = lineTo.getPointByLen(len - lenTaken);
-            this.startPoints = [SvgPoint.from(this.portFrom.anchor)];
-            this.midPoints1 = [pFrom, pTo];
-            this.midPoints2 = [];
-            this.endPoints = [SvgPoint.from(this.portTo.anchor)];
-          } else if (HuatuComponentPort.isTwoPortsOnSameLine(this.portFrom, this.portTo)) {
-            // Not facing, but on same line
-            // 1. Resolve Turn point
-            let turnPoint: ISvgPoint | undefined;
-            if (this.turnAt) {
-              turnPoint = this.turnAt;
-            } else if (this.turnX !== undefined && this.turnY !== undefined) {
-              turnPoint = new SvgPoint(this.turnX, this.turnY);
-            } else if (this.turnX !== undefined) {
-              if (this.portFrom.isH) {
-                turnPoint = new SvgPoint(this.turnX, this.portFrom.freeStart.y);
-              } else {
-                const lineV = Line.makeVLine(this.turnX);
-                turnPoint = Line.getXPoint(lineV, linePAtFrom);
-              }
-            } else if (this.turnY !== undefined) {
-              if (this.portFrom.isV) {
-                turnPoint = new SvgPoint(this.portFrom.freeStart.x, this.turnY);
-              } else {
-                const lineH = Line.makeHLine(this.turnY);
-                turnPoint = Line.getXPoint(lineH, linePAtFrom);
-              }
-            }
-            if (!turnPoint) {
-              turnPoint = linePAtFrom.getPointByLen(WtMath.isZero(this.portFrom.minHoldLen) ? 40 : 3 * this.portFrom.minHoldLen);
-            }
-            // 2. Make Lines and resolve middle points
-            const lineM = new Line(turnPoint, this.portFrom.lineAng);
-            const px1 = Line.getXPoint(lineM, linePAtFrom)!;
-            const px2 = Line.getXPoint(lineM, linePAtTo)!;
-            this.midPoints1.push(px1, px2);
-          } else {
-            // Not facing, and not on same line
-            const angToCheck = new Angle(lineTo.anchor, lineFrom.anchor, lineFrom.getPointByLen(4));
-            // If point To is in advance, then it is acute angle, otherwise not
-            const pFurther = angToCheck.ang >= AngDeg.DEG90 ? lineFrom.anchor : lineTo.anchor;
-            let pCross: ISvgPoint;
-            // If they are face-to-back, and not on same line
-            if (this.turnAt || (this.turnX !== undefined && this.turnY !== undefined)) {
-              pCross = this.turnAt ? this.turnAt : new SvgPoint(this.turnX!, this.turnY!);
-            } else if (this.turnX !== undefined) {
-              pCross = new SvgPoint(this.turnX, pFurther.y);
-            } else if (this.turnY !== undefined) {
-              pCross = new SvgPoint(pFurther.x, this.turnY);
-            } else {
-              pCross = pFurther;
-            }
-            const lCross = new Line(pCross, this.portFrom.lineAng + AngDeg.DEG90);
-            this.midPoints1.push(Line.getXPoint(lineFrom, lCross)!, Line.getXPoint(lineTo, lCross)!);
+      switch (this.type) {
+        case "auto":
+          // Make the TurnAt (point) the highest priority
+          if (this.turnAt) {
+            this.midPoints1 = [this.turnAt];
           }
-        }
-      } else if (this.type === "auto" || this.type === "line") {
-        let turnPoint: ISvgPoint | undefined;
-        if (this.turnAt) {
-          turnPoint = SvgPoint.from(this.turnAt);
-        } else if (this.turnX !== undefined && this.turnY !== undefined) {
-          turnPoint = new SvgPoint(this.turnX, this.turnY);
-        } else if (this.type === "auto") {
-          if (this.portFrom && this.portTo) {
-            // If both are ports and perpendicular to each other, then get the crossing point
-            if (HuatuComponentPort.isTwoPortsPerpendicular(this.portFrom, this.portTo)) {
-              turnPoint = Line.getXPoint(
-                new Line(this.portFrom.anchor, this.portFrom.lineAng),
-                new Line(this.portTo.anchor, this.portTo.lineAng)
-              )
+          // If both turnX and turnY presented, treat as a point
+          else if (this.turnX !== undefined && this.turnY !== undefined) {
+            this.midPoints1 = [new SvgPoint(this.turnX, this.turnY)];
+          }
+          // If both from and to are ports, treat it specially
+          else if (this.portFrom && this.portTo) {
+            const lineFrom = new Line(this.portFrom.freeStart, this.portFrom.lineAng);
+            const lineTo   = new Line(this.portTo.freeStart,   this.portTo.lineAng);
+            const lsFromTo = new LineSeg(this.portFrom.anchor, this.portTo.freeStart);
+            const isFromToCw = AngDeg.isFromToCw(this.portFrom.lineAng, lsFromTo.ang);
+            // lineP here means Line Perpendicular
+            const linePAtFrom = new Line(this.portFrom.freeStart, this.portFrom.lineAng + (isFromToCw ? AngDeg.DEG90 : -AngDeg.DEG90));
+            const linePAtTo = new Line(this.portTo.freeStart, this.portTo.lineAng + (isFromToCw ? -AngDeg.DEG90 : AngDeg.DEG90));
+            // From and To are on the same line
+            if (HuatuComponentPort.isTwoPortsOnSameLine(this.portFrom, this.portTo)) {
+              // If two ports are facing, simplify it as just a line seg
+              if (HuatuComponentPort.isTwoPortsFacing(this.portFrom, this.portTo)) {
+                this.startPoints = [SvgPoint.from(this.portFrom.anchor)];
+                this.midPoints1 = [];
+                this.midPoints2 = [];
+                this.endPoints = [SvgPoint.from(this.portTo.anchor)];
+              }
+              // Not facing, then judge turnX/turnY, or go from sideway
+              else {
+                const turnLen = this.turnLen
+                      ? this.turnLen
+                      : WtMath.isZero(this.portFrom.minHoldLen)
+                      ? 40
+                      : 5 * this.portFrom.minHoldLen;
+                let refTurnPoint: ISvgPoint | undefined;
+                let sidePoint1: ISvgPoint | undefined,
+                    sidePoint2: ISvgPoint | undefined;
+                if (this.turnX !== undefined) {
+                  if (this.portFrom.isV) {
+                    sidePoint1 = new SvgPoint(this.turnX, this.portFrom.freeStart.y);
+                    sidePoint2 = new SvgPoint(this.turnX, this.portTo.freeStart.y);
+                  } else {
+                    const lineV = Line.makeVLine(this.turnX);
+                    refTurnPoint = Line.getXPoint(lineV, lineFrom)!;
+                    const linePAtFrom2 = new Line(refTurnPoint, linePAtFrom.ang);
+                    sidePoint1 = linePAtFrom2.getPointByLen(turnLen);
+                    const lineFrom2 = new Line(sidePoint1, lineFrom.ang);
+                    sidePoint2 = Line.getXPoint(lineFrom2, linePAtTo)!;
+                  }
+                }
+                else if (this.turnY !== undefined) {
+                  if (this.portFrom.isH) {
+                    sidePoint1 = new SvgPoint(this.portFrom.freeStart.x, this.turnY);
+                    sidePoint2 = new SvgPoint(this.portTo.freeStart.x, this.turnY);
+                  } else {
+                    const lineH = Line.makeHLine(this.turnY);
+                    refTurnPoint = Line.getXPoint(lineH, lineFrom)!;
+                    const linePAtFrom2 = new Line(refTurnPoint, linePAtFrom.ang);
+                    sidePoint1 = linePAtFrom2.getPointByLen(turnLen);
+                    const lineFrom2 = new Line(sidePoint1, lineFrom.ang);
+                    sidePoint2 = Line.getXPoint(lineFrom2, linePAtTo)!;
+                  }
+                }
+                else {
+                  sidePoint1 = linePAtFrom.getPointByLen(turnLen);
+                  const lineSide = new Line(sidePoint1, this.portFrom.lineAng);
+                  sidePoint2 = Line.getXPoint(lineSide, linePAtTo)!;
+                }
+                if (refTurnPoint) this.midPoints1.push(refTurnPoint);
+                this.midPoints1.push(sidePoint1, sidePoint2);
+              }
             }
-          } else if (this.portFrom) {
-            // If From is Port, then make it like "hv" or "vh"
+            // From and To are parallel
+            else if (HuatuComponentPort.isTwoPortsParallel(this.portFrom, this.portTo)) {
+              // ports facing
+              if (HuatuComponentPort.isTwoPortsFacing(this.portFrom, this.portTo)) {
+                // Facing but not on same line
+                const px = Line.getXPoint(linePAtTo, lineFrom)!;
+                const len = new LineSeg(this.portFrom.freeStart, px).len;
+                const lenTaken = getXBetween(this.turn !== undefined ? this.turn : 1/2, 0, len);
+                const pFrom = lineFrom.getPointByLen(lenTaken);
+                const pTo = lineTo.getPointByLen(len - lenTaken);
+                this.startPoints = [SvgPoint.from(this.portFrom.anchor)];
+                this.midPoints1 = [pFrom, pTo];
+                this.midPoints2 = [];
+                this.endPoints = [SvgPoint.from(this.portTo.anchor)];
+              }
+              // ports not facing
+              else {
+                const lsFreeStarts = new LineSeg(this.portFrom.freeStart, this.portTo.freeStart),
+                      pMiddle = lsFreeStarts.getPoint(this.turn !== undefined ? this.turn : 0.5)!,
+                      lineMid = new Line(pMiddle, this.portFrom.lineAng);
+                let   pxStart = Line.getXPoint(lineMid, linePAtFrom)!,
+                      pxEnd = Line.getXPoint(lineMid, linePAtTo)!;
+                if (this.turnX !== undefined) {
+                  if (!this.portFrom.isV) {
+                    let pTurn = lineFrom.getPointByX(this.turnX)!;
+                    let lnPxStart = new Line(pTurn, linePAtFrom.ang);
+                    if (HuatuComponentPort.isTowPortsParallelBacking(this.portFrom, this.portTo)) {
+                      const pTo2 = lineTo.getPointByLen(-10);
+                      const angFrom = new Angle(pTurn, this.portTo.freeStart, pTo2);
+                      const lineAux = angFrom.ang >= AngDeg.DEG90
+                        ? lineTo
+                        : this.turnLen === undefined
+                        ? lineMid 
+                        : new Line(lnPxStart.getPointByLen(this.turnLen), this.portFrom.lineAng);
+                      pxStart = Line.getXPoint(lineAux, lnPxStart)!;
+                      pxEnd = Line.getXPoint(lineAux, linePAtTo)!;
+                      this.midPoints1 = [pTurn, pxStart, pxEnd];
+                    } else {
+                      pxStart = pTurn;
+                      pxEnd = Line.getXPoint(lineTo, lnPxStart)!;
+                      this.midPoints1 = [pxStart, pxEnd];
+                    }
+                  } else {
+                    this.midPoints1 = [pxStart, pxEnd];
+                  }
+                }
+                else if (this.turnY !== undefined) {
+                  if (!this.portFrom.isH) {
+                    let pTurn = lineFrom.getPointByY(this.turnY)!;
+                    let lnPxStart = new Line(pTurn, linePAtFrom.ang);
+                    if (HuatuComponentPort.isTowPortsParallelBacking(this.portFrom, this.portTo)) {
+                      const pTo2 = lineTo.getPointByLen(-10);
+                      const angFrom = new Angle(pTurn, this.portTo.freeStart, pTo2);
+                      const lineAux = angFrom.ang >= AngDeg.DEG90
+                        ? lineTo
+                        : this.turnLen === undefined
+                        ? lineMid 
+                        : new Line(lnPxStart.getPointByLen(this.turnLen), this.portFrom.lineAng);
+                      pxStart = Line.getXPoint(lineAux, lnPxStart)!;
+                      pxEnd = Line.getXPoint(lineAux, linePAtTo)!;
+                      this.midPoints1 = [pTurn, pxStart, pxEnd];
+                    } else {
+                      pxStart = pTurn;
+                      pxEnd = Line.getXPoint(lineTo, lnPxStart)!;
+                      this.midPoints1 = [pxStart, pxEnd];
+                    }
+                  } else {
+                    this.midPoints1 = [pxStart, pxEnd];
+                  }
+                }
+                else {
+                  this.midPoints1 = [pxStart, pxEnd];
+                }
+              }
+            }
+            // If only turnY specified
+            else if (this.turnY !== undefined) {
+              let lnH = Line.makeHLine(this.turnY),
+                  px1 = Line.getXPoint(lnH, lineFrom),
+                  px2 = Line.getXPoint(lnH, lineTo);
+              this.midPoints1.push(px1 || new SvgPoint(this.portFrom.freeStart.x, this.turnY));
+              this.midPoints1.push(px2 || new SvgPoint(this.portTo.freeStart.x, this.turnY));
+            }
+            // If only turnX specified
+            else if (this.turnX !== undefined) {
+              let lnV = Line.makeVLine(this.turnX),
+                  px1 = Line.getXPoint(lnV, lineFrom),
+                  px2 = Line.getXPoint(lnV, lineTo);
+              this.midPoints1.push(px1 || new SvgPoint(this.turnX, this.portFrom.freeStart.y));
+              this.midPoints1.push(px2 || new SvgPoint(this.turnX, this.portTo.freeStart.y));
+            }
+            // The two ports are perpendicular
+            else if (HuatuComponentPort.isTwoPortsPerpendicular(this.portFrom, this.portTo)) {
+              let pTurn = Line.getXPoint(lineFrom, lineTo)!;
+              this.midPoints1=[pTurn];
+            }
+          }
+          else if (this.portFrom && this.pointTo) {
             if (this.portFrom.isH) {
-              turnPoint = new SvgPoint(this.pointTo!.x, this.portFrom.anchor.y);
-            } else if (this.portFrom.isV) {
-              turnPoint = new SvgPoint(this.portFrom.anchor.x, this.pointTo!.y);
+              this.midPoints1 = [new SvgPoint(this.pointTo.x, this.portFrom.anchor.y)];
             }
-          } else if (this.portTo) {
-            // If To is Port, then make it like "hv" or "vh"
-            if (this.portTo.isH) {
-              turnPoint = new SvgPoint(this.pointFrom!.x, this.portTo.anchor.y);
-            } else if (this.portTo.isV) {
-              turnPoint = new SvgPoint(this.portTo.anchor.x, this.pointFrom!.y);
+            else if (this.portFrom.isV) {
+              this.midPoints1 = [new SvgPoint(this.portFrom.anchor.x, this.pointTo.y)];
             }
           }
-        }
-        // If turn point given, then add it, we don't miss anything given
-        if (turnPoint) {
-          this.midPoints1.push(SvgPoint.from(turnPoint));
-        }
-      } else if (this.type === "hv") {
-        this.midPoints1.push(new SvgPoint(xEnd, yStart));
-      } else if (this.type === "vh") {
-        this.midPoints1.push(new SvgPoint(xStart, yEnd));
-      } else if (this.type === "hvh") {
-        const turnX = this.turnX !== undefined ? this.turnX
-          : this.turnAt !== undefined ? this.turnAt.x
-          : getXBetween(this.turn !== undefined ? this.turn : 0.5, xStart, xEnd);
-        this.midPoints1.push(
-          new SvgPoint(turnX, yStart),
-          new SvgPoint(turnX, yEnd),
-        );
-      } else if (this.type === "vhv") {
-        const turnY = this.turnY !== undefined ? this.turnY
-          : this.turnAt !== undefined ? this.turnAt.y
-          : getXBetween(this.turn !== undefined ? this.turn : 0.5, yStart, yEnd);
-        this.midPoints1.push(
-          new SvgPoint(xStart, turnY),
-          new SvgPoint(xEnd, turnY),
-        );
-      } else if (this.type === "hvhv" || this.type === "vhvh") {
-        const turnX = this.turnX !== undefined ? this.turnX
-          : this.turnAt !== undefined ? this.turnAt.x
-          : getXBetween(this.turn !== undefined ? this.turn : 0.5, xStart, xEnd);
-        const turnY = this.turnY !== undefined ? this.turnY
-          : this.turnAt !== undefined ? this.turnAt.y
-          : getXBetween(this.turn !== undefined ? this.turn : 0.5, yStart, yEnd);
-        if (this.type === "hvhv") {
+          else if (this.pointFrom && this.portTo) {
+            if (this.portTo.isH) {
+              this.midPoints1 = [new SvgPoint(this.pointFrom.x, this.portTo.anchor.y)];
+            }
+            else if (this.portTo.isV) {
+              this.midPoints1 = [new SvgPoint(this.portTo.anchor.x, this.pointFrom.y)];
+            }
+          }
+          // Generic, just connect the free-start points, no middle points
+          else {
+            this.midPoints1 = [];
+          }
+
+          break;
+        case "line":
+          // Make the TurnAt (point) the highest priority
+          if (this.turnAt) {
+            this.midPoints1 = [this.turnAt];
+          }
+          // If both turnX and turnY presented, treat as a point
+          else if (this.turnX !== undefined && this.turnY !== undefined) {
+            this.midPoints1 = [new SvgPoint(this.turnX, this.turnY)];
+          }
+          // Other case make no middle points
+          else {
+            this.midPoints1 = [];
+          }
+          break;
+
+        case "tox":
+        case "tov":
+          if (this.xyTo === undefined) {
+            break;
+          }
+          if (this.portFrom) {
+            if (this.portFrom.isH) {
+              this.endPoints = [new SvgPoint(this.xyTo, this.portFrom.anchor.y)];
+              this.midPoints1 = [];
+            }
+            else if (this.turnY) {
+              this.endPoints = [new SvgPoint(this.xyTo, this.turnY)];
+              this.midPoints1 = [Line.getXPoint(
+                new Line(this.portFrom.freeStart, this.portFrom.lineAng),
+                Line.makeHLine(this.turnY)
+              )!];
+            }
+            else {
+              this.endPoints = [new SvgPoint(this.xyTo, this.portFrom.freeStart.y)];
+              this.midPoints1 = [];
+            }
+          }
+          else if (this.pointFrom) {
+            if (this.turnY) {
+              this.endPoints  = [new SvgPoint(this.xyTo, this.turnY)];
+              this.midPoints1 = [new SvgPoint(this.pointFrom.x, this.turnY)];
+            }
+            else {
+              this.endPoints = [new SvgPoint(this.xyTo, this.pointFrom.y)];
+            }
+          }
+          break;
+
+        case "toy":
+        case "toh":
+          if (this.xyTo === undefined) {
+            break;
+          }
+          if (this.portFrom) {
+            if (this.portFrom.isV) {
+              this.endPoints = [new SvgPoint(this.portFrom.anchor.x, this.xyTo)];
+              this.midPoints1 = [];
+            }
+            else if (this.turnX) {
+              this.endPoints = [new SvgPoint(this.turnX, this.xyTo)];
+              this.midPoints1 = [Line.getXPoint(
+                new Line(this.portFrom.freeStart, this.portFrom.lineAng),
+                Line.makeVLine(this.turnX)
+              )!];
+            }
+            else {
+              this.endPoints = [new SvgPoint(this.portFrom.freeStart.x, this.xyTo)];
+              this.midPoints1 = [];
+            }
+          }
+          else if (this.pointFrom) {
+            if (this.turnX) {
+              this.endPoints  = [new SvgPoint(this.turnX, this.xyTo)];
+              this.midPoints1 = [new SvgPoint(this.turnX, this.pointFrom.y)];
+            }
+            else {
+              this.endPoints = [new SvgPoint(this.pointFrom.x, this.xyTo)];
+            }
+          }
+          break;
+
+        case "hv":
+          this.midPoints1.push(new SvgPoint(xEnd, yStart));
+          break;
+
+        case "vh":
+          this.midPoints1.push(new SvgPoint(xStart, yEnd));
+          break;
+
+        case "hvh":
+          turnX = this.turnX !== undefined ? this.turnX
+            : this.turnAt !== undefined ? this.turnAt.x
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, xStart, xEnd);
           this.midPoints1.push(
             new SvgPoint(turnX, yStart),
-            new SvgPoint(turnX, turnY),
-            new SvgPoint(xEnd, turnY)
+            new SvgPoint(turnX, yEnd),
           );
-        } else {
+          break;
+
+        case "vhv":
+          turnY = this.turnY !== undefined ? this.turnY
+            : this.turnAt !== undefined ? this.turnAt.y
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, yStart, yEnd);
+          this.midPoints1.push(
+            new SvgPoint(xStart, turnY),
+            new SvgPoint(xEnd, turnY),
+          );
+          break;
+
+        case "hvhv":
+          turnX = this.turnX !== undefined ? this.turnX
+            : this.turnAt !== undefined ? this.turnAt.x
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, xStart, xEnd);
+          turnY = this.turnY !== undefined ? this.turnY
+            : this.turnAt !== undefined ? this.turnAt.y
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, yStart, yEnd);
+            this.midPoints1.push(
+              new SvgPoint(turnX, yStart),
+              new SvgPoint(turnX, turnY),
+              new SvgPoint(xEnd, turnY)
+            );
+          break;
+
+        case "vhvh":
+          turnX = this.turnX !== undefined ? this.turnX
+            : this.turnAt !== undefined ? this.turnAt.x
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, xStart, xEnd);
+          turnY = this.turnY !== undefined ? this.turnY
+            : this.turnAt !== undefined ? this.turnAt.y
+            : getXBetween(this.turn !== undefined ? this.turn : 0.5, yStart, yEnd);
           this.midPoints1.push(
             new SvgPoint(xStart, turnY),
             new SvgPoint(turnX, turnY),
             new SvgPoint(turnX, yEnd)
           );
-        }
-      } else if (this.type === "hvhvh" || this.type === "vhvhv") {
-        let turnX1, turnY1, turnX2, turnY2;
-        if (this.turnAt) {
-          turnX2 = this.turnAt.x;
-          turnY2 = this.turnAt.y;
-        } else {
-          turnX2 = getXBetween(2/3, xStart, xEnd);
-          turnY2 = getXBetween(2/3, yStart, yEnd);
-        }
-        turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, turnX2);
-        turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, turnY2);
-        if (this.type === "hvhvh") {
+          break;
+
+        case "hvhvh":
+          if (this.turnAt) {
+            turnX2 = this.turnAt.x;
+            turnY2 = this.turnAt.y;
+          } else {
+            turnX2 = getXBetween(2/3, xStart, xEnd);
+            turnY2 = getXBetween(2/3, yStart, yEnd);
+          }
+          turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, turnX2);
+          turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, turnY2);
           this.midPoints1.push(
             new SvgPoint(turnX1, yStart),
             new SvgPoint(turnX1, turnY1),
             new SvgPoint(turnX2, turnY1),
             new SvgPoint(turnX2, yEnd),
           );
-        } else {
+          break;
+
+        case "vhvhv":
+           if (this.turnAt) {
+            turnX2 = this.turnAt.x;
+            turnY2 = this.turnAt.y;
+          } else {
+            turnX2 = getXBetween(2/3, xStart, xEnd);
+            turnY2 = getXBetween(2/3, yStart, yEnd);
+          }
+          turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, turnX2);
+          turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, turnY2);
           this.midPoints1.push(
             new SvgPoint(xStart, turnY1),
             new SvgPoint(turnX1, turnY1),
             new SvgPoint(turnX1, turnY2),
             new SvgPoint(xEnd,   turnY2),
           );
-        }
+          break;
+
+        default:
+          break;
       }
+
       // Whatever it is, it is resolved and fixed here
       this.isFixed = true;
     }
@@ -438,15 +637,20 @@ export class HuatuWire implements IHuatuWire {
 
   //*------------ STATIC VARs / METHODs --------------------------------------------------*/
 
-  static isComponentPort = (port: IHuatuComponentPortSettled | IHuatuPoint | ISvgPoint): boolean => {
+  static isComponentPort = (port: IHuatuComponentPortSettled | IHuatuPoint | ISvgPoint | number): boolean => {
     return !!(port as IHuatuComponentPortSettled).anchor;
   }
 
   static DEFAULT_JOINT_SIZE = 6;
   static DEFAULT_LINE_WIDTH = 4;
 
+  static TO_HV_TYPES: string[] = [
+    "tox", "tov", "toy", "toh"
+  ];
+
   static TYPES: string[] = [
     "auto","line",
+    "tox", "tov", "toy", "toh",
     "hv","vh",
     "hvh","vhv",
     "hvhv","hvhvh",
@@ -464,6 +668,7 @@ export class HuatuWire implements IHuatuWire {
       ["turnX"],
       ["turnY"],
       ["turnAt"],
+      ["turnLen"],
       ["net"],
       ["lineWidth", "width"],
       ["color", "stroke"],

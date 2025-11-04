@@ -101,8 +101,15 @@ export class HuatuComponentPort implements IHuatuComponentPort {
 
   // Some indicator to know whether the two ports (two arrows of the two holding lines) are facing to each other
   static isTwoPortsFacing = (p1: IHuatuComponentPortSettled, p2: IHuatuComponentPortSettled) => {
+    const p1f = new Line(p1.anchor, p1.lineAng).getPointByLen(2),
+          d1 = Point.getDistance(p1.anchor, p2.anchor),
+          d2 = Point.getDistance(p1f, p2.anchor);
     const angDiff = AngDeg.fitAng(p1.lineAng - p2.lineAng);
-    return (angDiff >= AngDeg.DEG90 && angDiff <= AngDeg.DEG270);
+    return (d1 > d2) && (angDiff >= AngDeg.DEG90 && angDiff <= AngDeg.DEG270);
   }
 
+  static isTowPortsParallelBacking = (p1: IHuatuComponentPortSettled, p2: IHuatuComponentPortSettled) => {
+    return WtMath.isEqual(AngDeg.DEG180, AngDeg.fitAng(p1.lineAng - p2.lineAng));
+  }
+  
 }

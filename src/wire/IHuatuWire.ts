@@ -37,13 +37,14 @@ export interface IHuatuWire {
   pointFrom?: ISvgPoint;
   portTo?: IHuatuComponentPortSettled;
   pointTo?: ISvgPoint;
-  type: "auto" | "line" | "hv" | "vh" | "hvh" | "vhv" | "hvhv" | "hvhvh" | "vhvh" | "vhvhv" | string;
+  type: "auto" | "line" | "tox" | "tov" | "toy" | "toh" | "hv" | "vh" | "hvh" | "vhv" | "hvhv" | "hvhvh" | "vhvh" | "vhvhv" | string;
   radius?: number | number[];    // Corner radius of the h-to-v/v-to-h lines
   
   turn?: number;
   turnX?: number;
   turnY?: number;
   turnAt?: ISvgPoint;
+  turnLen?: number;
 
   xMin?: number;
   xMax?: number;

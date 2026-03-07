@@ -1,6 +1,6 @@
 {
   "name": "wt-huatu",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "wt-huatu, a graph drawing library. Let's draw in a programming way.",
   "main": "index.js",
   "type": "module",

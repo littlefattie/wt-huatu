@@ -60,7 +60,7 @@ There are some examples in the folder `examples`, which are used as the library 
 
 There are more examples in the Editor [https://littlefattie.github.io/wt-huatu-editor/](https://littlefattie.github.io/wt-huatu-editor/).
 
-And there are some documents presented at [https://littlefattie.github.io/wt-huatu-doc/doc/cn/introduction.html](https://littlefattie.github.io/wt-huatu-doc/doc/cn/introduction.html) (简体中文), and [https://littlefattie.github.io/wt-huatu-doc/doc/en/introduction.html](https://littlefattie.github.io/wt-huatu-doc/doc/en/introduction.html) (English). The documents are not fully covering all the features of the lib, it is a continuing process, as we add more, it will be updated.
+And there are some documents presented at [https://littlefattie.github.io/wt-huatu-doc/](https://littlefattie.github.io/wt-huatu-doc/) (简体中文/English). The documents are not fully covering all the features of the lib, it is a continuing process, as we add more, it will be updated.
 
 You can use it as a npm package.
 

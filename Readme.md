@@ -3,9 +3,7 @@
 
 `wt-huatu`, is a Drawing Library to draw something mathematically, logically, hierarchically and programmatically.
 
-For quick and fruitful info, please go to the official site: [https://wt-huatu.org](https://wt-huatu.org).
-
-It is written in `Typescript`, can be used as a library, to be integrated into your project. For example, you can embed it into a customized markdown renderer to use it as some text-to-image renderer. Or it can be used as some drawing tool when using the online editor at [https://wt-huatu.org/editor](https://wt-huatu.org/editor).
+It is written in `Typescript`, can be used as a library, to be integrated into your project. For example, you can embed it into a customized markdown renderer to use it as some text-to-image renderer. Or it can be used as some drawing tool when using the online editor at [https://littlefattie.github.io/wt-huatu-editor/](https://littlefattie.github.io/wt-huatu-editor/).
 
 Quick and intuitive explanation. It will convert some text description like this:
 
@@ -59,10 +57,6 @@ to some SVG image like this:
 ![wt-huatu example of introduction](./imgs/wt-huatu-ex-intro.svg)
 
 There are some examples in the folder `examples`, which are used as the library is developed. They are simply `.yml` files, except some special syntax.
-
-There are more examples in the shared repository at [https://wt-huatu.org/repo](https://wt-huatu.org/repo).
-
-And there are some documents presented at [https://wt-huatu.org/doc](https://wt-huatu.org/doc). The documents are not fully covering all the features of the lib, it is a continuing process, as we add more, it will be updated.
 
 You can use it as a npm package.
 

@@ -26,6 +26,8 @@ import type { IHuatuComponentPortSettled } from "../component/IHuatuComponent.js
 export interface IHuatuNet {
   name?: string;      // Name of the net if specified
   magicId: string;
+  color?: string;
+  lineWidth?: number;
 
   addWire(wire: IHuatuWire): void;
   getWires(): IHuatuWire[];
@@ -33,6 +35,7 @@ export interface IHuatuNet {
 }
 
 export interface IHuatuWire {
+  wireDef: string;
   portFrom?: IHuatuComponentPortSettled;
   pointFrom?: ISvgPoint;
   portTo?: IHuatuComponentPortSettled;
@@ -52,4 +55,15 @@ export interface IHuatuWire {
   yMax?: number;
 
   net?: IHuatuNet;
+  isFixed: boolean;
+  noDraw: boolean;
+
+  startPoints: ISvgPoint[];
+  endPoints: ISvgPoint[]; 
+  midPoints1: ISvgPoint[];
+  midPoints2: ISvgPoint[];
+  
+  // Linked wire
+  linkedWire?: IHuatuWire;
+
 }

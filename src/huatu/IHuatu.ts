@@ -144,6 +144,7 @@ export interface IHuatuLabelStylePure {
   bold?: boolean;
   italic?: boolean;
   addLine?: string;
+  lineHeight?: number;
 }
 
 export interface IHuatuLabelStyle extends IHuatuLabelStylePure {
@@ -207,7 +208,7 @@ export interface IHuatuAngleMark {
 }
 
 export type HuatuDimMarkType = "hori" | "vert" | "line";
-export type HuatuDimMarkArrowType = "solid" | "simple" | "none";
+export type HuatuDimMarkArrowType = "solid" | "simple" | "empty" | "none";
 
 export interface IHuatuDimMark {
   pStart: ISvgPoint;
@@ -226,6 +227,7 @@ export interface IHuatuDimMark {
   barWidth: number;
   lineWidth: number;
   barLength: number;
+  barLenEqual: boolean;
   linePos: number;
 
   hasStartBar: boolean;

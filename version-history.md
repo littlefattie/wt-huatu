@@ -2,6 +2,11 @@
 
 Following notes will mark why the library is versioned up:
 
+## V1.4.0
+
+- Add a lot features, include wire/net update and optimization
+- a lot of error fixes and optimizations
+
 ## V1.3.4
 
 - Refine Component fetch feature, make it async

@@ -1542,7 +1542,7 @@ export class WtHuatu implements IHuatu {
       let npDist = this.resolveVarExpr(params[4]);
       if ( npT !== undefined && WtMath.isIn0and1(npT) &&
           (npDir === "left" || npDir === "right") &&
-           npDist !== undefined) 
+           npDist !== undefined)
       {
         let np = (md.path as TPathSeg).auxModel?.getNormalPoint(npT, npDist, npDir);
         if (np) {
@@ -1926,7 +1926,7 @@ export class WtHuatu implements IHuatu {
    * Check if the user has given a valid string to specify the marker, if it is a name for "predefined"
    * marker, then the marker will be copied into the in-use collection with the same name. Or it
    * needs to be some marker defined by user manually.
-   * @param ptn The defined name or pre-defined name for the Marker user wants to use
+   * @param mkr The defined name or pre-defined name for the Marker user wants to use
    * @returns The Marker or undefined if not found
    */
   checkMarker(mkr: string): HuatuMarker | undefined {
@@ -2206,8 +2206,10 @@ export class WtHuatu implements IHuatu {
           realOrphans.push(orphan);
         }
       });
-      const orphans = realOrphans.map(x => `'${x}'`).join(", ");
-      this.warnings.push(`[Resolving Label Style '${name}']: ${orphans} could not be resolved!`);
+      if (realOrphans.length > 0) {
+        const orphans = realOrphans.map(x => `'${x}'`).join(", ");
+        this.warnings.push(`[Resolving Label Style '${name}']: ${orphans} could not be resolved!`);
+      }
     } else {
       res = parseStrIntoKeyValuePair(value, optsLabelStyle);
       lsParams = res.body;
@@ -2237,10 +2239,11 @@ export class WtHuatu implements IHuatu {
     if (lsParams.textAlign) lblStyle.textAlign = lsParams.textAlign;
     if (lsParams.color) lblStyle.color = lsParams.color;
     if (lsParams.fontName) lblStyle.font = lsParams.fontName;
-    if (lsParams.bold) lblStyle.bold = lsParams.bold;
-    if (lsParams.italic) lblStyle.italic = lsParams.italic;
+    if (lsParams.bold !== undefined) lblStyle.bold = lsParams.bold;
+    if (lsParams.italic !== undefined) lblStyle.italic = lsParams.italic;
     if (lsParams.addLine) lblStyle.addLine = lsParams.addLine;
     if (lsParams.fontSize) lblStyle.fontSize = lsParams.fontSize;
+    if (lsParams.lineHeight) lblStyle.lineHeight = lsParams.lineHeight;
     this.labelStyles.push(lblStyle);
     return [];
   }
@@ -3124,7 +3127,7 @@ export class WtHuatu implements IHuatu {
     // 2. Check if it is a point referencing some shape/path, etc, or purely some point definition
     const tryPointExpr = this.resolvePointFromExpr(def);
     if (tryPointExpr) return tryPointExpr;
-    
+
     // Return none if no hit
     return undefined;
   }
@@ -3135,14 +3138,8 @@ export class WtHuatu implements IHuatu {
     if (!params.from) {
       return `You must provide 'From' terminal to define a wire. '${def}' lacks some!`
     }
-    let net: HuatuNet | undefined;
     if (!params.to) {
-      if (params.net) {
-        net = this.nets.find(x => x.name === params.net);
-        if (!net) {
-          return `No 'To' terminal and the net you refer (${params.net}) doesn't exist`;
-        }
-      } else {
+      if (!params.net) {
         return `No 'To' terminal and no net defined for the wire '${def}'`;
       }
     }
@@ -3168,7 +3165,7 @@ export class WtHuatu implements IHuatu {
       }
     }
     if (errMsg.length > 0) return errMsg.join("\n");
-    const wire = new HuatuWire(termFrom!, termTo, params.type);
+    const wire = new HuatuWire(def, termFrom!, termTo, params.type);
 
     // Check other parameters of that wire
     if (params.color) wire.strokeColor = params.color;
@@ -3217,7 +3214,23 @@ export class WtHuatu implements IHuatu {
       }
     }
     if (params.net) {
-      // TODO: handle Net
+      let tryNet = this.nets.find(x => x.name === params.net);
+      if (!tryNet) {
+        tryNet = new HuatuNet(this, params.net);
+        this.nets.push(tryNet);
+      }
+      wire.net = tryNet;
+      if (params.netColor && isValidColor(params.netColor)) {
+        wire.net.color = params.netColor;
+      }
+      if (params.netLineWidth) {
+        const netlw = this.resolveVarExpr(params.netLineWidth);
+        if (netlw === undefined || netlw < 0) {
+          this.warnings.push(`net linewidth parameter '${params.netLineWidth}' of wire def is invalid, it cannot resolve to a positive number!`);
+        } else {
+          wire.net.lineWidth = netlw;
+        }
+      }
     }
     if (params.lineWidth) {
       const lw = this.resolveVarExpr(params.lineWidth);
@@ -3240,6 +3253,14 @@ export class WtHuatu implements IHuatu {
     }
     if (params.squareJoint) {
       wire.isSquareJoint = true;
+    }
+    if (params.endArrow) {
+      let mkr = this.checkMarker(params.endArrow);
+      if (mkr) wire.markerEnd = mkr;
+    }
+    if (params.startArrow) {
+      let mkr = this.checkMarker(params.startArrow);
+      if (mkr) wire.markerStart = mkr;
     }
     // Resolve Points
     wire.tryResolvePoints();
@@ -3362,6 +3383,7 @@ export class WtHuatu implements IHuatu {
     if (!!params.noEndBar) conf.noEndBar = true;
     if (!!params.noStartArrow) conf.noStartArrow = true;
     if (!!params.noEndArrow) conf.noEndArrow = true;
+    if (!!params.barLenEqual) conf.barLenEqual = true;
     if (params.barColor) conf.barColor = params.barColor;
     if (params.lineColor) conf.lineColor = params.lineColor;
     if (params.arrow) conf.arrowType = params.arrow as HuatuDimMarkArrowType;
@@ -3522,6 +3544,15 @@ export class WtHuatu implements IHuatu {
     return errs;
   }
 
+  settleNetWires() {
+    // Settle Wires of all the nets
+    this.nets.forEach(n => n.settleWires());
+  }
+
+  resetNetTrunkDrawStatus() {
+    this.nets.forEach(n => n.resetTrunkDrawnStatus());
+  }
+  
   /**
    * Resolve Layer definition, the input might be a string, or a string list
    * @param name Name of the Layer
@@ -3693,6 +3724,8 @@ export class WtHuatu implements IHuatu {
       "block", "layer",
       "component", "wire",
     ];
+
+    // Resolve drawings
     drawItems.forEach(d => {
       const draw = this.resolveJobDrawingItem(d, allowedTypes);
       if (typeof draw === "string") {
@@ -3709,6 +3742,9 @@ export class WtHuatu implements IHuatu {
         job.drawings.push(draw as IHuatuFinalDraw);
       }
     });
+
+    // Settle Net wires
+    this.settleNetWires();
 
     // Re-Check ViewBox
     if (!job.viewBox) {
@@ -3779,13 +3815,11 @@ export class WtHuatu implements IHuatu {
       let i = 0;
       while(i < src.length) {
         if (isIvKey(src[i])) {
-          if ((i + 1) < src.length) {
-            if (!isIvKey(src[i + 1])) {
-              ivObj[src[i]] = src[i + 1];
-              i += 2;
-            } else {
-              i += 1;
-            }
+          if ((i + 1) < src.length && !isIvKey(src[i + 1])) {
+            ivObj[src[i]] = src[i + 1];
+            i += 2;
+          } else {
+            i += 1;
           }
         } else {
           filtered.push(src[i]);
@@ -3912,7 +3946,7 @@ export class WtHuatu implements IHuatu {
             if (deg === undefined) {
               errors.push(`[comp port] Ray Deg expression '${parseRes.body.rayDeg}' cannot be resolved!`);
             } else {
-              newPort.rayDeg = deg;
+              newPort.rayDeg = AngDeg.roundDeg(deg);
             }
           }
           if (parseRes.body.minHoldLen) {

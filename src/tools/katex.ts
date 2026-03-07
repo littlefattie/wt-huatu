@@ -38,10 +38,18 @@ export const renderKatexInlineWithBlockForm = (math: string): string => {
 };
 
 export const renderKatexMixedText = (text: string): string => {
+  const buildTextSpan = (s: string) => {
+    let lnEscaped = s
+      .replace(/\\\\r\\\\n\b/g,'<br/>')
+      .replace(/\\\\n\\\\r\b/g,'<br/>')
+      .replace(/\\\\r\b/g,'<br/>')
+      .replace(/\\\\n\b/g,'<br/>');
+    return  `<span>${lnEscaped}</span>`
+  }
   const rawSegments = text.split(/(?<!\\)\$/); // Split label text with just the $ sign, but not escaped one \$
   const rendered:string[] = [];
   if (rawSegments[0].trim()) {
-    rendered.push(`<span>${rawSegments[0]}</span>`);
+    rendered.push(buildTextSpan(rawSegments[0]));
   }
   let dsStarted = false;
   let textPending = '';
@@ -50,7 +58,7 @@ export const renderKatexMixedText = (text: string): string => {
       if (!dsStarted) {
         dsStarted = true;
         if (textPending.trim()) {
-          rendered.push(`<span>${textPending}</span>`);
+          rendered.push(buildTextSpan(textPending));
         }
         textPending = rawSegments[i];
       } else {
@@ -63,7 +71,7 @@ export const renderKatexMixedText = (text: string): string => {
       textPending = '$' + textPending;
     }
     if (textPending) {
-      rendered.push(`<span>${textPending}</span>`);
+      rendered.push(buildTextSpan(textPending));
     }
   }
   return rendered.join("");

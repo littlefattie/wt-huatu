@@ -31,9 +31,11 @@ import { WtHuatu } from "./Huatu.js";
 import { HuatuClipPath } from "./HuatuClipPath.js";
 import { buildCssHtmlTag } from "../tools/html.js";
 import { genHex } from "../tools/gen-id.js";
+import { HuatuCompDrawing } from "./HuatuCompDrawing.js";
+import { HuatuWireDrawing } from "../wire/HuatuWireDrawing.js";
 
 export class HuatuJob implements IHuatuJob {
-  huatu: IHuatu;
+  huatu: WtHuatu;
   name: string;
   desc?: string | undefined;
   drawings: IHuatuFinalDraw[] = [];
@@ -45,7 +47,7 @@ export class HuatuJob implements IHuatuJob {
   height?: number;
   config?: IHuatuConfig;
 
-  constructor(huatu: IHuatu, name: string) {
+  constructor(huatu: WtHuatu, name: string) {
     this.huatu = huatu;
     this.name = name;
   }
@@ -54,11 +56,11 @@ export class HuatuJob implements IHuatuJob {
   static HUATU_HUB_KATEX_CSS = "";
 
   static getKatexCss = () => buildCssHtmlTag(
-    globalThis.huatuKatexCss || 
-    this.HUATU_HUB_KATEX_CSS || 
+    globalThis.huatuKatexCss ||
+    this.HUATU_HUB_KATEX_CSS ||
     `https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css`
   );
-  
+
   buildStyleDefs(): string {
     return `<style type="text/css"><![CDATA[\n`
       + `foreignObject > body { margin: 0; width: 100%; height: 100%; }\n`
@@ -97,6 +99,11 @@ export class HuatuJob implements IHuatuJob {
         this.resolveDefineOfFinalDraw(draw);
       })
       this.defines.push(element);
+    }
+    if (element instanceof HuatuCompDrawing && element.placement.huatu && element.placement.huatu.draw) {
+      element.placement.huatu.draw.drawings.forEach(d => {
+        this.resolveDefineOfFinalDraw(d)
+      });
     }
   }
 
@@ -180,6 +187,8 @@ export class HuatuJob implements IHuatuJob {
       this.resolveDefineOfDrawing(draw);
     } else if (draw instanceof HuatuLabel) {
       this.resolveDefineOfLabel(draw);
+    } else if (draw instanceof HuatuWireDrawing) {
+      draw.wire.getDrawings().forEach(d => this.resolveDefineOfFinalDraw(d));
     }
   }
 
@@ -196,8 +205,14 @@ export class HuatuJob implements IHuatuJob {
     globalThis.wtHuatuConfig = config;
     const printUnused = globalThis.wtHuatuConfig && globalThis.wtHuatuConfig.printUnusedModule;
 
+    // Clean Wire's Nets drawn status
+    this.huatu.resetNetTrunkDrawStatus();
+    
     // Resolve Defines
     this.resolveDefines();
+
+    // Re-do the reset
+    this.huatu.resetNetTrunkDrawStatus();
 
     let svg = "";
     // Title
@@ -345,7 +360,7 @@ export class HuatuJob implements IHuatuJob {
   buildHtmlForComponent() {
     let config = this.config ?? this.huatu.config;
     if (!config) {
-      config = { noRefStyle: true }; 
+      config = { noRefStyle: true };
     } else {
       config.noRefStyle = true;
     }
@@ -363,7 +378,7 @@ export class HuatuJob implements IHuatuJob {
         svg.graphs += d.buildHtml("direct") + "\n";
       }
     })
-    
+
     // Remove Config
     globalThis.wtHuatuConfig = configBkp;
     return svg;

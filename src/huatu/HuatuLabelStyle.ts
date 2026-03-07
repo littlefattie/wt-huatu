@@ -94,7 +94,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
 
   buildCss(): string {
     if (!this.name) return ""
-    const attrs = this.buildAttrArray();
+    const attrs = this.refSettled().buildAttrArray();
     if (attrs.length < 1) return "";
     return `.${HuatuLabelStyle.buildStyleClassName(this)} {\n${attrs.map(a => `${a[0]}: ${a[1]};`).join("\n")}\n}`;
   }
@@ -109,29 +109,55 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     return styPure;
   }
 
+  refSettled(): HuatuLabelStyle {
+    let sty = new HuatuLabelStyle(this.name)
+    if (this.refStyles.length > 0) {
+      this.refStyles.forEach(s => {
+        sty = HuatuLabelStyle.overrideStyle(sty, s.getStylePure());
+      })
+    }
+    // At last, override its own values
+    sty = HuatuLabelStyle.overrideStyle(sty, HuatuLabelStyle.makePureStyle(this));
+    return sty;
+  }
+
   // Static methods
 
   static makePureStyle(srcStyle: IHuatuLabelStylePure) {
     let styPure: IHuatuLabelStylePure = {};
-    if (srcStyle.color)     styPure.color     = srcStyle.color;
-    if (srcStyle.font)      styPure.font      = srcStyle.font;
-    if (srcStyle.fontSize)  styPure.fontSize  = srcStyle.fontSize;
-    if (srcStyle.textAlign) styPure.textAlign = srcStyle.textAlign;
-    if (srcStyle.bold)      styPure.bold      = true;
-    if (srcStyle.italic)    styPure.italic    = true;
-    if (srcStyle.addLine)   styPure.addLine   = srcStyle.addLine;
+    if (srcStyle.color)                styPure.color      = srcStyle.color;
+    if (srcStyle.font)                 styPure.font       = srcStyle.font;
+    if (srcStyle.fontSize)             styPure.fontSize   = srcStyle.fontSize;
+    if (srcStyle.textAlign)            styPure.textAlign  = srcStyle.textAlign;
+    if (srcStyle.bold !== undefined)   styPure.bold       = srcStyle.bold;
+    if (srcStyle.italic !== undefined) styPure.italic     = srcStyle.italic;
+    if (srcStyle.addLine)              styPure.addLine    = srcStyle.addLine;
+    if (srcStyle.lineHeight)           styPure.lineHeight = srcStyle.lineHeight;
     return styPure;
   }
 
   static copyRefStyle(sty: IHuatuLabelStylePure, srcStyle: IHuatuLabelStylePure) {
-    if (!sty.color     && srcStyle.color)     sty.color     = srcStyle.color;
-    if (!sty.font      && srcStyle.font)      sty.font      = srcStyle.font;
-    if (!sty.fontSize  && srcStyle.fontSize)  sty.fontSize  = srcStyle.fontSize;
-    if (!sty.textAlign && srcStyle.textAlign) sty.textAlign = srcStyle.textAlign;
-    if (!sty.bold      && srcStyle.bold)      sty.bold      = true;
-    if (!sty.italic    && srcStyle.italic)    sty.italic    = true;
-    if (!sty.addLine   && srcStyle.addLine)   sty.addLine   = srcStyle.addLine;
+    if (!sty.color      && srcStyle.color)      sty.color      = srcStyle.color;
+    if (!sty.font       && srcStyle.font)       sty.font       = srcStyle.font;
+    if (!sty.fontSize   && srcStyle.fontSize)   sty.fontSize   = srcStyle.fontSize;
+    if (!sty.textAlign  && srcStyle.textAlign)  sty.textAlign  = srcStyle.textAlign;
+    if (sty.bold === undefined)                 sty.bold       = srcStyle.bold;
+    if (sty.italic === undefined)               sty.italic     = srcStyle.italic;
+    if (!sty.addLine    && srcStyle.addLine)    sty.addLine    = srcStyle.addLine;
+    if (!sty.lineHeight && srcStyle.lineHeight) sty.lineHeight = srcStyle.lineHeight;
     return sty;
+  }
+
+  static overrideStyle(targetSty: HuatuLabelStyle, override: IHuatuLabelStylePure) {
+    if (override.color)                targetSty.color      = override.color;
+    if (override.font)                 targetSty.font       = override.font;
+    if (override.fontSize)             targetSty.fontSize   = override.fontSize;
+    if (override.textAlign)            targetSty.textAlign  = override.textAlign;
+    if (override.bold !== undefined)   targetSty.bold       = override.bold;
+    if (override.italic !== undefined) targetSty.italic     = override.italic;
+    if (override.addLine)              targetSty.addLine    = override.addLine;
+    if (override.lineHeight)           targetSty.lineHeight = override.lineHeight;
+    return targetSty;
   }
 
   static buildStyleClassName(style: HuatuLabelStyle): string {
@@ -147,16 +173,16 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
       return `'Times New Roman', Times, Georgia, 'Source Han Serif', 'Source Han Serif SC', 'Source Han Serif CN', 'Source Han Serif SC', 'Noto Serif CJK SC', NSimsun, Simsun`;
     }
     else if (lcFont === "lishu" || lcFont === "lisu") {
-      return `'Segoe UI', Tahoma, Geneva, Verdana, LiSu, 'Microsoft YaHei'`;
+      return `LiSu, 'Segoe UI', Tahoma, Geneva, Verdana, 'Microsoft YaHei'`;
     }
     else if (lcFont === "kaiti" || lcFont === "kaishu" || lcFont === "kai") {
-      return `Arial, Helvetica, sans-serif, STKaiti`;
+      return `STKaiti, Arial, Helvetica, sans-serif`;
     }
     else if (lcFont === "fangsong") {
-      return `'Times New Roman', Times, serif, STFangsong`;
+      return `STFangsong, 'Times New Roman', Times, serif`;
     }
     else if (lcFont === "mingti" || lcFont === "ximingti" || lcFont === "xinximingti" || lcFont === "xxmt") {
-      return `'Times New Roman', Times, serif, PMingLiU`;
+      return `PMingLiU, 'Times New Roman', Times, serif`;
     }
     else if (lcFont === "xinsongti" || lcFont === "xst") {
       return `'Times New Roman', Times, serif, NSimsun, Simsun`;
@@ -168,7 +194,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
       return `'Source Han Sans CN', SimHei, STXihei, 'Microsoft Yahei'`;
     }
     else if (lcFont === "youyuan") {
-      return `Arial, Helvetica, sans-serif, YouYuan, 'Microsoft Yahei'`;
+      return `YouYuan, Arial, Helvetica, sans-serif, 'Microsoft Yahei'`;
     }
     else if (lcFont === "wenquanyi" || lcFont === "wqy") {
       return `'WenQuanYi Zen Hei', 'WenQuanYi Zen Hei Mono', 'WenQuanYi Micro Hei', 'WenQuanYi Micro Hei Mono', 'Microsoft Yahei'`;
@@ -184,7 +210,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     }
     else {
       // Return default font family which is times, and prepend the given font Name
-      return `${font}, 'Times New Roman', Times, Georgia, 'Source Han Serif', 'Source Han Serif SC', 'Source Han Serif CN'`;
+      return `${font}, 'Times New Roman', Times, Georgia, 'Source Han Serif', 'Source Han Serif SC', 'Source Han Serif CN', NSimsun, 宋体`;
     }
   }
 

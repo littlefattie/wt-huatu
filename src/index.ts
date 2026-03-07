@@ -13,13 +13,15 @@ import { HuatuJob } from "./huatu/HuatuJob.js";
 import { HuatuLabel } from "./huatu/HuatuLabel.js";
 import { HuatuComponentDef } from "./component/HuatuComponentDef.js";
 import { HuatuComponentPlacement } from "./component/HuatuComponentPlacement.js";
-import type { HuatuComponentPlacementMirrorType } from "./component/IHuatuComponent.js";
+import type { HuatuComponentPlacementMirrorType, HuatuComponentPlacementRefPointType } from "./component/IHuatuComponent.js";
 import { resolveYmlModel } from "./huatu/HuatuParser.js";
 import { HuatuPath } from "./huatu/HuatuPath.js";
 import { HuatuStyle } from "./huatu/HuatuStyle.js";
 import { HuatuYml } from "./huatu/HuatuYml.js";
 import type { IHuatuResolvingError } from "./huatu/IHuatu.js";
 import type { IHuatuYmlObj } from "./huatu/IHuatuYml.js";
+import type { ISvgPoint } from "./svg/ISvg.js";
+import { booleanCheck } from "./tools/utils.js";
 
 export { WtHuatu } from "./huatu/Huatu.js";
 
@@ -99,6 +101,23 @@ export interface IWtHuatuRenderResult extends IWtHuatuResolvingResult {
   // The rendered HTML as a single string, incase only one job or no job specified, it would be the job "draw"
   rendered: IWtHuatuRenderedJob[];
 }
+
+export interface ICompPreviewParams extends IHuatuYmlObj {
+  mirror?: string;
+  rotDeg?: string;
+  refCenter?: string;
+  rotateLabel?: string;
+  scale?: string;
+}
+
+export interface ICompPreviewParamsReal {
+  mirror?: HuatuComponentPlacementMirrorType;
+  rotDeg?: number;
+  refCenter?: HuatuComponentPlacementRefPointType;
+  rotateLabel?: boolean;
+  scale?: number;
+}
+
 
 export const renderAComponent = (compObj: IHuatuYmlObj, opts?: IWtHuatuComponentPreviewOptions): IWtHuatuResolvingResult => {
   const res: IWtHuatuResolvingResult = {
@@ -325,4 +344,147 @@ export const renderYmlInput = async (yml: string, opts: IWtHuatuRenderOptions): 
     height: j.height || j.viewBox?.h,
   }))
   return result;
+}
+
+export const renderCompPreviewSvg = (def: IHuatuYmlObj, previewParams?: ICompPreviewParams) => {
+  // The function to translate parameters
+  const parseCompPreviewParams = (params: ICompPreviewParams) => {
+    const realParams: ICompPreviewParamsReal = {};
+    if (params.mirror) {
+      params.mirror = params.mirror.toLowerCase();
+      if (params.mirror === "x") realParams.mirror = 'x';
+      else if (params.mirror === "y") realParams.mirror = 'y';
+      else if (params.mirror === "xy") realParams.mirror = "xy";
+    }
+    if (params.rotDeg) {
+      let deg = parseFloat(params.rotDeg);
+      if (deg) {
+        deg = AngDeg.roundDeg(deg);
+        realParams.rotDeg = deg;
+      }
+    }
+    if (params.scale) {
+      realParams.scale = WtMath.makeInRange(parseFloat(params.scale), 0.2, 200);
+    }
+    if (booleanCheck(params.refCenter)) realParams.refCenter = "center";
+    if (booleanCheck(params.rotateLabel)) realParams.rotateLabel = true;
+    return realParams;
+  }
+
+  const CROSS_PLUS_MARK_LENGTH = 5;
+  const compDef = new HuatuComponentDef("COMP_DEF", def);
+  if (!compDef.isValid) {
+    return compDef.errors
+      .map(e => e.msgs ? e.msgs.map(m => e.title + ' > ' + m) : [e.title])
+      .flat();
+  }
+  let params: ICompPreviewParamsReal | undefined;
+  if (previewParams) {
+    params = parseCompPreviewParams(previewParams);
+  }
+  const plc = new HuatuComponentPlacement(
+    "COMP_PLACEMENT",
+    new SvgPoint(0, 0),
+    compDef,
+    {},
+    params?.mirror,
+    params?.rotDeg,
+    params?.refCenter,
+    params?.rotateLabel
+  );
+  if (!plc.isValid || !plc.huatu?.draw) return ["Component Definition invalid!"];
+  const draw = plc.huatu.draw;
+  const pCenter = draw.getViewBoxWithoutLabels().getCenter();
+  
+  // Make a Huatu to show the placement
+  const ht = new WtHuatu();
+  if (plc.huatu.config) {
+    ht.config = plc.huatu.config;
+  }
+  const htDraw = new HuatuJob(ht, "draw");
+  htDraw.drawings.push(new HuatuDrawing(new HuatuCompDrawing(plc)));
+
+  // Add port indicators
+  const PORT_MARK_WIDTH = 10;
+  if (plc.ports.length > 0) {
+    // Prepare styles
+    const styPort = new HuatuStyle();
+    styPort.strokeColor = "maroon";
+    styPort.strokeWidth = PORT_MARK_WIDTH;
+    styPort.strokeOpacity = 0.5;
+    styPort.strokeLineCap = "round";
+    const styPortPos = new HuatuStyle();
+    styPortPos.fillColor = "yellow";
+    // Add indicators
+    for (let i = 0; i < plc.ports.length; i++) {
+      const port = plc.portsSettled[i];
+      const pEnd = Vector.fromPoint(port.anchor).addVector(Vector.fromLenAng(port.minHoldLen, AngDeg.deg2Ang(port.lineDeg)));
+      const lsPort = new PathLine(port.anchor.x, port.anchor.y, pEnd.x, pEnd.y);
+      htDraw.drawings.push(new HuatuDrawing(new HuatuPath(lsPort), styPort));
+      const portPos = new PathCircle(port.anchor.x, port.anchor.y, 1);
+      htDraw.drawings.push(new HuatuDrawing(new HuatuPath(portPos), styPortPos));
+    }
+  }
+  let pmCenter: ISvgPoint = params?.refCenter ? SvgPoint.ORIGIN : new SvgPoint(pCenter.x, pCenter.y);
+  let pmOrigin: ISvgPoint = params?.refCenter ? new SvgPoint(-pCenter.x, -pCenter.y) : SvgPoint.ORIGIN;
+  if (params?.mirror){
+    if (params.mirror.includes("x")) {
+      pmCenter.x = -pmCenter.x;
+      pmOrigin.x = -pmOrigin.x;
+    }
+    if (params.mirror.includes("y")) {
+      pmCenter.y = -pmCenter.y;
+      pmOrigin.y = -pmOrigin.y;
+    }
+  } 
+  if (params?.rotDeg) {
+    pmCenter = new Vector(pmCenter.x, pmCenter.y).rotateByDeg(params.rotDeg).toPoint();
+    pmOrigin = new Vector(pmOrigin.x, pmOrigin.y).rotateByDeg(params.rotDeg).toPoint();
+  }
+  // Add the cross sign at center
+  const cross = new PathLines();  
+  cross.addLine(
+    {x: pmCenter.x + CROSS_PLUS_MARK_LENGTH, y: pmCenter.y + CROSS_PLUS_MARK_LENGTH },
+    {x: pmCenter.x - CROSS_PLUS_MARK_LENGTH, y: pmCenter.y - CROSS_PLUS_MARK_LENGTH });
+  cross.addLine(
+    {x: pmCenter.x - CROSS_PLUS_MARK_LENGTH, y: pmCenter.y + CROSS_PLUS_MARK_LENGTH },
+    {x: pmCenter.x + CROSS_PLUS_MARK_LENGTH, y: pmCenter.y - CROSS_PLUS_MARK_LENGTH });
+  const styCross = new HuatuStyle();
+  styCross.strokeColor = "magenta";
+  styCross.strokeWidth = 0.1;
+  htDraw.drawings.push(new HuatuDrawing(new HuatuPath(cross), styCross));
+  // Add the plus sign at origin
+  const plus = new PathLines();
+  plus.addLine({x: pmOrigin.x - CROSS_PLUS_MARK_LENGTH, y: pmOrigin.y}, {x: pmOrigin.x + CROSS_PLUS_MARK_LENGTH, y: pmOrigin.y});
+  plus.addLine({x: pmOrigin.x, y: pmOrigin.y - CROSS_PLUS_MARK_LENGTH}, {x: pmOrigin.x, y: pmOrigin.y + CROSS_PLUS_MARK_LENGTH});
+  const styPlus = new HuatuStyle();
+  styPlus.strokeColor = "aqua";
+  styPlus.strokeWidth = 0.1;
+  htDraw.drawings.push(new HuatuDrawing(new HuatuPath(plus), styPlus));
+  // Attach Port Names to Port Indicators
+  plc.portsSettled.forEach(port => {
+    const lsPort = LineSeg.fromXYs(
+      port.anchor.x    + plc.location.x, port.anchor.y    + plc.location.y,
+      port.freeStart.x + plc.location.x, port.freeStart.y + plc.location.y
+    );
+    const lblWidth = WtMath.isZero(lsPort.len) ? 25 : lsPort.len;
+    const lblFontSize = PORT_MARK_WIDTH * 0.6;
+    const lbl = new HuatuLabel(port.name, lblWidth, lblFontSize * 1.2);
+    lbl.location = lsPort.middle;
+    lbl.setAnchor("center");
+    // Adjust the label's rotate angle if the port indicator is rotated
+    let rotAng = AngDeg.fitAng(port.lineAng);
+    if (rotAng > AngDeg.DEG90 && rotAng <= AngDeg.DEG180) rotAng = rotAng + AngDeg.DEG180;
+    else if (rotAng > AngDeg.DEG180 && rotAng < AngDeg.DEG270) rotAng = rotAng - AngDeg.DEG180;
+    lbl.rotDeg = AngDeg.ang2Deg(rotAng);
+    lbl.textAlign = "center";
+    lbl.fontSize = lblFontSize;
+    lbl.color = "yellow";
+    htDraw.drawings.push(lbl);
+  })
+  // Update Top-Level Job viewbox
+  htDraw.viewBox = htDraw.calcViewBox();
+  ht.jobs.push(htDraw);
+  ht.draw = ht.jobs[0];
+  return params?.scale ? htDraw.buildSvgOfScale("direct", params.scale) : htDraw.buildSvg("direct", true);
 }

@@ -27,14 +27,15 @@ export class HuatuWireDrawing implements IHuatuFinalDraw {
     this.huatu = huatu;
   }
 
-  getBBox(): ISvgBBox {
-    const boxes = this.wire.getDrawings().map(e => e.getBBox());
-    return SvgBBox.mergeBoxes(boxes);
+  getBBox(): ISvgBBox {    
+    return this.wire.getBBox();
   }
 
   // Two functions for Drawing Html building, Direct and Linking way
   buildHtml(buildType: SvgBuildType): string {
-    return this.wire.getDrawings().map(d => d.buildHtml(buildType)).join("\n");
+    return this.wire.errored
+      ? ""
+      : this.wire.getDrawings().map(d => d.buildHtml(buildType)).join("\n");
   }
 
 }

@@ -258,11 +258,13 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
       this.anchorX = -1 * this.anchorX;
       if (this.textAlign === "left") this.textAlign = "right";
       else if (this.textAlign === "right") this.textAlign = "left";
-    } else if (placement.mirror === "y") {
+    }
+    else if (placement.mirror === "y") {
       this.location.y = refPoint.y * 2 - this.location.y;
       this.anchorOffset.y = -this.anchorOffset.y
       this.anchorY = -1 * this.anchorY;
-    } else if (placement.mirror === "xy") {
+    } 
+    else if (placement.mirror === "xy") {
       this.location.x = refPoint.x * 2 - this.location.x;
       this.location.y = refPoint.y * 2 - this.location.y;
       this.anchorOffset.x = -this.anchorOffset.x;
@@ -279,7 +281,8 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
       if (placement.rotateLabel) {
         // If rotation degree specified, then add the rotation to original label
         this.rotDeg += placement.rotDeg;
-      } else if (this.compRotDeg) {
+      } 
+      else if (this.compRotDeg) {
         let rd = AngDeg.fitDeg(this.compRotDeg);
         if (rd >= 0 && rd <= AngDeg.DEG45 || rd >= (AngDeg.DEG315)) {
           rd = AngDeg.DEG0;     // No Rotate
@@ -296,7 +299,7 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
           // It is like point rotating
           this.anchorX = Math.cos(rd) * ax - Math.sin(rd) * ay;
           this.anchorY = Math.sin(rd) * ax + Math.cos(rd) * ay;
-          if (this.textAlign === "center" && ax === 0) {
+          if ((this.textAlign === "center" || !this.textAlign) && ax === 0) {
             // Note: this adjustment is to make sure that the originally centered text would align to
             //       anchoring side
             if (WtMath.isEqual(this.anchorX, 1)) {

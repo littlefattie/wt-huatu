@@ -41,6 +41,12 @@ export class WtMath {
     return t >= 0 && t <= 1;
   }
 
+  static makeInRange = (x: number, min: number, max: number) => {
+    let vMin = Math.min(min, max),
+        vMax = Math.max(min, max);
+    return x > vMax ? vMax : x < vMin ? vMin : x;
+  }
+
   static combo = (k: number, n: number): number => {
     if (!Number.isInteger(k) || !Number.isInteger(n)) return 0;
     if (n <= 0) return 0;

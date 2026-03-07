@@ -31,15 +31,20 @@ export class AngDeg {
     return deg * Math.PI / 180;
   }
 
-  // Move The ang to range of [0, 360), and convert to Angle form
-  static fitDeg(deg: number): number{
+  // Round the Deg into the range of [0, 360)
+  static roundDeg(deg: number): number {
     while (deg >= 360){
       deg -= 360;
     }
     while (deg < 0){
       deg += 360;
     }
-    return AngDeg.deg2Ang(deg);
+    return deg;
+  }
+
+  // Move The deg to range of [0, 360), and convert to Angle form
+  static fitDeg(deg: number): number{    
+    return AngDeg.deg2Ang(AngDeg.roundDeg(deg));
   }
 
   static fitAng(ang: number): number {

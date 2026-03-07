@@ -53,6 +53,7 @@ export interface IHuatuDimMarkParams {
   noEndBar?: boolean;         // Whether not drawing the end bar
   noStartArrow?: boolean;     // Whether not drawing the start arrow
   noEndArrow?: boolean;       // Whether not drawing the end arrow
+  barLenEqual?: boolean;      // Whether not Making the bars same length when H/V dims
   barColor?: string;          // Color of the bars
   lineColor?: string;         // Color of the Dime line
   arrow?: string;             // 'empty', 'solid', or 'simple' arrow to draw
@@ -76,6 +77,7 @@ export interface IHuatuDimMarkConfig {
   gap?: number;
   barWidth?: number;
   barLength?: number;
+  barLenEqual?: boolean;
   lineWidth?: number;
   linePos?: number;
   barColor?: string;          // Color of the bars
@@ -138,6 +140,7 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
   hasEndBar: boolean = true;
   hasStartArrow: boolean = true;
   hasEndArrow: boolean = true;
+  barLenEqual: boolean = false;
 
   cfgBar: IStrokeConfig = {
     color: "currentColor",
@@ -217,6 +220,7 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
     if (!!config.noEndBar) this.hasEndBar = false;
     if (!!config.noStartArrow) this.hasStartArrow = false;
     if (!!config.noEndArrow) this.hasEndArrow = false;
+    if (!!config.barLenEqual) this.barLenEqual = true;
     // If it is already Hori/Vert, then re-assign type accordingly
     if (this.isHori) this.type = "hori";
     else if (this.isVert) this.type = "vert";
@@ -260,10 +264,12 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
       yBarEnd = yFar + k * (this.gap + this.barLength);
       yMarkPos = yFar + k * (this.gap + this.barLength * this.linePos);
       if (this.hasStartBar) {
-        this.barStart = PathLine.fromLineSeg(LineSeg.fromXYs(this.pStart.x, this.pStart.y + k * this.gap, this.pStart.x, yBarEnd));
+        let yBarStart = (this.barLenEqual ? yFar : this.pStart.y) + k * this.gap;
+        this.barStart = PathLine.fromLineSeg(LineSeg.fromXYs(this.pStart.x, yBarStart, this.pStart.x, yBarEnd));
       }
       if (this.hasEndBar) {
-        this.barEnd = PathLine.fromLineSeg(LineSeg.fromXYs(this.pEnd.x, this.pEnd.y + k * this.gap, this.pEnd.x, yBarEnd));
+        let yBarStart = (this.barLenEqual ? yFar : this.pEnd.y) + k * this.gap;
+        this.barEnd = PathLine.fromLineSeg(LineSeg.fromXYs(this.pEnd.x, yBarStart, this.pEnd.x, yBarEnd));
       }
       lsMark = LineSeg.fromXYs(this.pStart.x, yMarkPos, this.pEnd.x, yMarkPos);
       pMidMarkLine = lsMark.middle;
@@ -285,10 +291,12 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
       xBarEnd = xFar + k * (this.gap + this.barLength);
       xMarkPos = xFar + k * (this.gap + this.barLength * this.linePos);
       if (this.hasStartBar) {
-        this.barStart = PathLine.fromLineSeg(LineSeg.fromXYs(this.pStart.x + k * this.gap, this.pStart.y, xBarEnd, this.pStart.y));
+        let xBarStart = (this.barLenEqual ? xFar : this.pStart.x) + k * this.gap;
+        this.barStart = PathLine.fromLineSeg(LineSeg.fromXYs(xBarStart, this.pStart.y, xBarEnd, this.pStart.y));
       }
       if (this.hasEndBar) {
-        this.barEnd = PathLine.fromLineSeg(LineSeg.fromXYs(this.pEnd.x + k * this.gap, this.pEnd.y, xBarEnd, this.pEnd.y));
+        let xBarStart = (this.barLenEqual ? xFar : this.pEnd.x) + k * this.gap;
+        this.barEnd = PathLine.fromLineSeg(LineSeg.fromXYs(xBarStart, this.pEnd.y, xBarEnd, this.pEnd.y));
       }
       lsMark = LineSeg.fromXYs(xMarkPos, this.pStart.y, xMarkPos, this.pEnd.y);
       pMidMarkLine = lsMark.middle;
@@ -309,7 +317,7 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
       if (this.arrowType === "simple") {
         if (this.hasStartArrow) this.arrowStart = new PathPolyline(pStartLeft, lsMark.pStart, pStartRight);
         if (this.hasEndArrow) this.arrowEnd = new PathPolyline(pEndLeft, lsMark.pEnd, pEndRight);
-      } else if (this.arrowType === "solid") {
+      } else if (this.arrowType === "solid" || this.arrowType === "empty") {
         if (this.hasStartArrow) this.arrowStart = new PathPolygon(pStartLeft, lsMark.pStart, pStartRight);
         if (this.hasEndArrow) this.arrowEnd = new PathPolygon(pEndLeft, lsMark.pEnd, pEndRight);
       }
@@ -518,18 +526,23 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
           color: "none"
         };
       }
-    } else if (this.arrowType === "solid") {
+    }
+    else if (this.arrowType === "solid" || this.arrowType === "empty") {
       this.cfgArrowFill.color = color || this.cfgLine.color;
       this.cfgArrowStroke.color = color || this.cfgLine.color;
       this.cfgArrowStroke.width = this.lineWidth;
       this.cfgArrowStroke.lineJoin = "round";
       if (this.arrowStart) {
         this.arrowStart.stroke = this.cfgArrowStroke;
-        this.arrowStart.fill = this.cfgArrowFill;
+        this.arrowStart.fill = this.arrowType === "empty"
+         ? { color: "none" }
+         : this.cfgArrowFill;
       }
       if (this.arrowEnd) {
         this.arrowEnd.stroke = this.cfgArrowStroke;
-        this.arrowEnd.fill = this.cfgArrowFill;
+        this.arrowEnd.fill =  this.arrowType === "empty"
+         ? { color: "none" }
+         : this.cfgArrowFill;
       }
     }
   }
@@ -601,6 +614,7 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
       ["noEndBar"],
       ["noStartArrow"],
       ["noEndArrow"],
+      ["barLenEqual"],
       ["barColor"],
       ["lineColor"],
       ["arrow"],
@@ -623,6 +637,7 @@ export class HuatuDimMark implements IHuatuDimMark, IHuatuFinalDraw {
     booleans: [
       "noStartBar", "noEndBar",
       "noStartArrow", "noEndArrow",
+      "barLenEqual",
       "labelOnLine", "rotateLabel",
       "showLength"
     ],

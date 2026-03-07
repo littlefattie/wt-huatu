@@ -246,10 +246,12 @@ export class HuatuStyle implements IHuatuStyle, IHuatuCss {
       if (strokeWidth && strokeColor) break;
     }
     strokeColor = style.strokeColor ? style.strokeColor : strokeColor;
-    return style.strokeWidth ? style.strokeWidth
+    let swUsed = style.strokeWidth ? style.strokeWidth
       : strokeWidth ? strokeWidth
       : strokeColor && strokeColor.toLowerCase() !== "none" ? 1
       : 0;
+    let hasMarker = !!style.markerEnd || !!style.markerMid || !!style.markerStart;
+    return hasMarker ? 10 * swUsed : swUsed;
   }
 
   static buildForSvg(style?: IHuatuStyle, direct?: boolean) {

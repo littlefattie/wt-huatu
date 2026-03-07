@@ -5,7 +5,7 @@ import { AngDeg } from "../geometry/AngDeg.js";
 import Line from "../geometry/Line.js";
 import LineSeg from "../geometry/LineSeg.js";
 import { SvgPoint } from "../svg/SvgPoint.js";
-import type { ISvgPoint } from "../svg/ISvg.js";
+import type { ISvgBBox, ISvgPoint } from "../svg/ISvg.js";
 
 import type {
   IHuatuClipPath,
@@ -47,6 +47,9 @@ import { PathRect } from "../path/PathRect.js";
 import { genHex } from "../tools/gen-id.js";
 import { WtMath } from "../math/WtMath.js";
 import Angle from "../geometry/Angle.js";
+import { HuatuNetTrunk } from "./HuatuNetTrunk.js";
+import { SvgBBox } from "../svg/SvgBBox.js";
+import { HuatuMarker } from "../huatu/HuatuMarker.js";
 
 export interface IHuatuWireDefParams {
   name?: string;
@@ -60,14 +63,19 @@ export interface IHuatuWireDefParams {
   turnAt?: string;
   turnLen?: string;
   net?: string;
+  netColor?: string;
+  netLineWidth?: string;
   lineWidth?: string;
   color?: string;
   joint?: string;
   jointSize?: string;
   squareJoint?: boolean;
+  endArrow?: string;
+  startArrow?: string;
 }
 
 export class HuatuWire implements IHuatuWire {
+  wireDef: string;
   magicId: string;
   portFrom?: IHuatuComponentPortSettled;
   pointFrom?: ISvgPoint;
@@ -93,14 +101,22 @@ export class HuatuWire implements IHuatuWire {
   strokeColor?: string;
   lineWidth?: number;
 
+  markerStart?: HuatuMarker;
+  markerEnd?: HuatuMarker;
+
   // Is used for the case that, it is from a Point to some Net
-  jointColor?: string;
+  jointLocation?: ISvgPoint;
+  jointColor: string = "currentColor";
   jointSize?: number;     // The size is diameter
   isSquareJoint?: boolean;
 
   // A flag to indicate whether this wire is fixed, by conditions specified,
   // i.e. type/turn x/y, etc.
   isFixed: boolean = false;
+
+  // A flag to indicate that this wire will have no drawing element, say we don't need to draw it
+  // e.g. the two ends of the wire are same points, we can just omit it
+  noDraw: boolean = false;
 
   startPoints: ISvgPoint[] = [];
   endPoints: ISvgPoint[] = [];
@@ -116,12 +132,31 @@ export class HuatuWire implements IHuatuWire {
   freeStart?: ISvgPoint;
   freeEnd?: ISvgPoint;
 
+  // Linked wire
+  linkedWire?: HuatuWire;
+
+  // Trunks and Joints
+  trunkFrom?: HuatuNetTrunk;
+  trunkTo?: HuatuNetTrunk;
+  jointFrom?: ISvgPoint;
+  jointTo?: ISvgPoint;
+  jointMid?: ISvgPoint;
+  // These indicator give mandatory drawing for Joints
+  drawJointFrom?: boolean;
+  drawJointTo?: boolean;
+
+  errored?: boolean;
+  isExtra?: boolean;
+  trunkOnly?: boolean;
+
   constructor(
+    wireDef: string,
     from: IHuatuComponentPortSettled | ISvgPoint,
     to?:  IHuatuComponentPortSettled | ISvgPoint | number,
     type?: string
   ) {
     this.magicId = genHex(8);
+    this.wireDef = wireDef;
     if (HuatuWire.isComponentPort(from)) {
       this.portFrom = from as IHuatuComponentPortSettled;
     } else {
@@ -150,7 +185,7 @@ export class HuatuWire implements IHuatuWire {
     //this.tryResolvePoints();
   }
 
-  tryResolvePoints() {
+  prepareEnds() {
     // Resolve Start Points, it will always done this way
     if (this.portFrom) {
       this.startPoints.push(
@@ -170,6 +205,17 @@ export class HuatuWire implements IHuatuWire {
     } else if (this.pointTo) {
       this.endPoints.push(this.pointTo);
     }
+  }
+
+  tryResolvePoints() {
+    // Prepare end points
+    this.prepareEnds();
+    // Deal with Net
+    if (this.net) {
+      this.net.addWire(this);
+      return;
+    }
+    // Deal with standalone wire
     const getXBetween = (t: number, x1: number, x2: number) => {
       t = WtMath.fitTin0and1(t);
       return x1 * (1 - t) + x2 * t;
@@ -180,28 +226,7 @@ export class HuatuWire implements IHuatuWire {
           yEnd   = this.endPoints[0]?.y;
     let turnX, turnY;
     let turnX1, turnY1, turnX2, turnY2;
-    // Resolve the middle points
-    if (this.net) {
-      if (this.portFrom && this.portTo &&
-        HuatuComponentPort.isTwoPortsOnSameLine(this.portFrom, this.portTo) &&
-        HuatuComponentPort.isTwoPortsFacing(this.portFrom, this.portTo)
-      ) {
-        // The only case we make it just a simple direct line, which is that
-        // the From and To are ports and on the same line, and they face to each other
-        this.startPoints = [SvgPoint.from(this.portFrom.anchor)];
-        this.midPoints1 = [];
-        this.midPoints2 = [];
-        this.endPoints = [SvgPoint.from(this.portTo.anchor)];
-        // Mark fixed
-        this.isFixed = true;
-      } else {
-        // Hand over the point resolving method to Net
-        this.freeStart = SvgPoint.from(this.startPoints[this.startPoints.length - 1]);
-        this.freeEnd = SvgPoint.from(this.endPoints[0]);
-      }
-      // TODO: more code needed to resolve NET RELATED stuff
-
-    } else {
+    if (this.portTo || this.pointTo || this.xyTo !== undefined) {
       switch (this.type) {
         case "auto":
           // Make the TurnAt (point) the highest priority
@@ -307,7 +332,7 @@ export class HuatuWire implements IHuatuWire {
                       const lineAux = angFrom.ang >= AngDeg.DEG90
                         ? lineTo
                         : this.turnLen === undefined
-                        ? lineMid 
+                        ? lineMid
                         : new Line(lnPxStart.getPointByLen(this.turnLen), this.portFrom.lineAng);
                       pxStart = Line.getXPoint(lineAux, lnPxStart)!;
                       pxEnd = Line.getXPoint(lineAux, linePAtTo)!;
@@ -331,7 +356,7 @@ export class HuatuWire implements IHuatuWire {
                       const lineAux = angFrom.ang >= AngDeg.DEG90
                         ? lineTo
                         : this.turnLen === undefined
-                        ? lineMid 
+                        ? lineMid
                         : new Line(lnPxStart.getPointByLen(this.turnLen), this.portFrom.lineAng);
                       pxStart = Line.getXPoint(lineAux, lnPxStart)!;
                       pxEnd = Line.getXPoint(lineAux, linePAtTo)!;
@@ -412,7 +437,9 @@ export class HuatuWire implements IHuatuWire {
         case "tox":
         case "tov":
           if (this.xyTo === undefined) {
-            break;
+            if (this.portTo) this.xyTo = this.portTo.freeStart.x;
+            else if (this.pointTo) this.xyTo = this.pointTo.x;
+            else break;
           }
           if (this.portFrom) {
             if (this.portFrom.isH) {
@@ -445,7 +472,9 @@ export class HuatuWire implements IHuatuWire {
         case "toy":
         case "toh":
           if (this.xyTo === undefined) {
-            break;
+            if (this.portTo) this.xyTo = this.portTo.freeStart.y;
+            else if (this.pointTo) this.xyTo = this.pointTo.y;
+            else break;
           }
           if (this.portFrom) {
             if (this.portFrom.isV) {
@@ -534,13 +563,11 @@ export class HuatuWire implements IHuatuWire {
         case "hvhvh":
           if (this.turnAt) {
             turnX2 = this.turnAt.x;
-            turnY2 = this.turnAt.y;
           } else {
             turnX2 = getXBetween(2/3, xStart, xEnd);
-            turnY2 = getXBetween(2/3, yStart, yEnd);
           }
           turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, turnX2);
-          turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, turnY2);
+          turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, yEnd);
           this.midPoints1.push(
             new SvgPoint(turnX1, yStart),
             new SvgPoint(turnX1, turnY1),
@@ -551,13 +578,11 @@ export class HuatuWire implements IHuatuWire {
 
         case "vhvhv":
            if (this.turnAt) {
-            turnX2 = this.turnAt.x;
             turnY2 = this.turnAt.y;
           } else {
-            turnX2 = getXBetween(2/3, xStart, xEnd);
             turnY2 = getXBetween(2/3, yStart, yEnd);
           }
-          turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, turnX2);
+          turnX1 = this.turnX !== undefined ? this.turnX : getXBetween(1/2, xStart, xEnd);
           turnY1 = this.turnY !== undefined ? this.turnY : getXBetween(1/2, yStart, turnY2);
           this.midPoints1.push(
             new SvgPoint(xStart, turnY1),
@@ -576,63 +601,142 @@ export class HuatuWire implements IHuatuWire {
     }
   }
 
-  resolveJointLocation(): ISvgPoint {
-    // TODO: resolve the location point, if required, check net
-    // !NOTE: This should be changed, use the array to hold locations, there might be two points
-    return new SvgPoint(0, 0);
-  }
-
   getDrawings(): HuatuDrawing[] {
     const drawings: HuatuDrawing[] = [];
+    // Return empty collection if no need to draw
+    if (this.noDraw) return drawings;
     // Resolve Line
     const stroke = new HuatuStyle();
-    stroke.strokeColor = this.strokeColor || "currentColor";
-    stroke.strokeWidth = this.lineWidth || HuatuWire.DEFAULT_LINE_WIDTH;
+    stroke.strokeColor = this.strokeColor || (this.net?.color) || "currentColor";
+    stroke.strokeWidth = this.lineWidth || (this.net?.lineWidth) || HuatuWire.DEFAULT_LINE_WIDTH;
     stroke.strokeLineCap = "round";
     stroke.strokeLineJoin = "round";
     stroke.fillColor = "none";
-    if (this.midPoints2.length < 1) {
-      let pathLine = new PathPolyline(...this.startPoints, ...this.midPoints1, ...this.endPoints);
-      if (this.radius) pathLine.toAngleArced(this.radius);
-      drawings.push(new HuatuDrawing(new HuatuPath(pathLine), stroke));
-    } else {
-      let pathLine1 = new PathPolyline(...this.startPoints, ...this.midPoints1);
-      let pathLine2 = new PathPolyline(...this.midPoints2,  ...this.endPoints);
-      if (this.radius) {
-        pathLine1.toAngleArced(this.radius);
-        pathLine2.toAngleArced(this.radius);
-      }
-      drawings.push(
-        new HuatuDrawing(new HuatuPath(pathLine1), stroke),
-        new HuatuDrawing(new HuatuPath(pathLine2), stroke)
-      )
+    if (!this.net) {
+      if (this.markerStart) stroke.markerStart = this.markerStart;
+      if (this.markerEnd) stroke.markerEnd = this.markerEnd;
     }
-    // Resolve the joint point/square
-    if (this.jointColor && this.jointColor !== "none" && this.net) {
-      const loc = this.resolveJointLocation();
-      const jointRadius = (this.jointSize || HuatuWire.DEFAULT_JOINT_SIZE) / 2;
-      const jointPath = this.isSquareJoint
-        ? PathRect.fromXYWH(loc.x - jointRadius, loc.y - jointRadius, jointRadius * 2, jointRadius * 2)
-        : new PathCircle(loc.x, loc.y, jointRadius);
-      const fill = new HuatuStyle();
-      fill.fillColor = this.jointColor;
-      drawings.push(new HuatuDrawing(new HuatuPath(jointPath), fill));
+    // Draw normal part
+    if (this.trunkOnly) {
+      // If trunk only, we just draw the lines in starting/ending points
+      if (this.startPoints.length > 0) {
+        drawings.push(new HuatuDrawing(new HuatuPath(new PathPolyline(...this.startPoints)), stroke));
+      }
+      if (this.endPoints.length > 0) {
+        drawings.push(new HuatuDrawing(new HuatuPath(new PathPolyline(...this.endPoints)), stroke));
+      }
+    }
+    else {
+      // Draw the starting/ending and middle points
+      if (this.midPoints2.length < 1) {
+        let pathLine = new PathPolyline(...this.startPoints, ...this.midPoints1, ...this.endPoints);
+        if (this.radius) pathLine = pathLine.toAngleArced(this.radius);
+        drawings.push(new HuatuDrawing(new HuatuPath(pathLine), stroke));
+      } else {
+        let pathLine1 = new PathPolyline(...this.startPoints, ...this.midPoints1);
+        let pathLine2 = new PathPolyline(...this.midPoints2,  ...this.endPoints);
+        if (this.radius && !this.net) {     // Disable line radius if net involved
+          pathLine1 = pathLine1.toAngleArced(this.radius);
+          pathLine2 = pathLine2.toAngleArced(this.radius);
+        }
+        drawings.push(
+          new HuatuDrawing(new HuatuPath(pathLine1), stroke),
+          new HuatuDrawing(new HuatuPath(pathLine2), stroke)
+        )
+      }
+    }
+    // Add trunks and joints if in net
+    if (this.net) {
+      const makeJoint = (loc: ISvgPoint, jColor: string) => {
+        const fill = new HuatuStyle();
+        fill.fillColor = jColor;
+        const jointRadius = (this.jointSize || HuatuWire.DEFAULT_JOINT_SIZE) / 2;
+        const jointPath = this.isSquareJoint
+          ? PathRect.fromXYWH(loc.x - jointRadius, loc.y - jointRadius, jointRadius * 2, jointRadius * 2)
+          : new PathCircle(loc.x, loc.y, jointRadius);
+        return new HuatuDrawing(new HuatuPath(jointPath), fill);
+      }
+      // Linked Extra wire
+      if (this.linkedWire && !this.linkedWire.noDraw) {
+        drawings.push(...this.linkedWire.getDrawings());
+        // Add the start point as Joint
+        if (this.jointColor !== "none") {
+          drawings.push(makeJoint(this.linkedWire.pointFrom!, this.jointColor));
+        }
+      }
+      // Draw Trunks
+      if (this.trunkFrom && !this.trunkFrom.isDrawn && !this.trunkFrom.isZeroLength()) {
+        drawings.push(this.trunkFrom.draw(stroke));
+      }
+      if (this.trunkTo && !this.trunkTo.isDrawn && !this.trunkTo.isZeroLength()) {
+        drawings.push(this.trunkTo.draw(stroke));
+      }
+      // Draw Joints
+      if (this.jointColor !== "none") {
+        // If trunk is zero-length, then remove the joint
+        if (this.trunkFrom && this.trunkFrom.isZeroLength())  {
+          this.jointFrom = undefined;
+        }
+        if (this.trunkTo && this.trunkTo.isZeroLength()) {
+          this.jointTo = undefined;
+        }
+        // Draw joints
+        if (this.jointFrom && 
+           (!this.linkedWire || !this.linkedWire.noDraw) &&   // This line is for the extra linked wire
+           (this.drawJointFrom || (this.trunkFrom && !this.trunkFrom.isPointTerminal(this.jointFrom))))
+        {
+          drawings.push(makeJoint(this.jointFrom, this.jointColor));
+        }
+        if (this.jointTo &&
+           (this.drawJointTo || (this.trunkTo && !this.trunkTo.isPointTerminal(this.jointTo))))
+        {
+          drawings.push(makeJoint(this.jointTo, this.jointColor));
+        }
+        // Check to draw joint Mid
+        if (this.jointMid) {
+          if ((this.trunkFrom && this.trunkFrom.hasPointOn(this.jointMid) && !this.trunkFrom.isZeroLength() && !this.trunkFrom.isPointTerminal(this.jointMid)) || 
+              (this.trunkTo && this.trunkTo.hasPointOn(this.jointMid) && !this.trunkTo.isZeroLength() && !this.trunkTo.isPointTerminal(this.jointMid))) {
+            drawings.push(makeJoint(this.jointMid, this.jointColor));
+          }
+        }
+      }
     }
     return drawings;
   }
 
-  addToNet(net: IHuatuNet): boolean {
-    if (!this.net) {
-      this.net = net;
-      net.addWire(this);
-      return true;
+  getBBox(): ISvgBBox {
+    let points: ISvgPoint[] = [];
+    // collect Starts/Ends
+    if (this.pointFrom) points.push(this.pointFrom);
+    if (this.portFrom) points.push(this.portFrom.anchor, this.portFrom.freeStart);
+    if (this.pointTo) points.push(this.pointTo);
+    if (this.portTo) points.push(this.portTo.anchor, this.portTo.freeStart);
+    // Collect resolved points after being fixed
+    if (this.isFixed) {
+      if (this.jointFrom) points.push(this.jointFrom);
+      if (this.jointTo) points.push(this.jointTo);
+      if (this.jointMid) points.push(this.jointMid);
+      points.push(...this.midPoints1);
+      points.push(...this.midPoints2);
+      points.push(...this.startPoints);
+      points.push(...this.endPoints);
     }
-    if (net === this.net || (this.net.name === net.name)) {
-      return true;
-    } else {
-      // We cannot Add the wire to another net
-      return false;
-    }
+    // Find Min/Max
+    let xs = points.map(p => p.x),
+        ys = points.map(p => p.y),
+        xMin = Math.min(...xs),
+        xMax = Math.max(...xs),
+        yMin = Math.min(...ys),
+        yMax = Math.max(...ys);
+    // Extend by PROTRUDE and JOINT SIZE
+    let extendSize = this.net
+      ? HuatuNet.PROTRUDE + (HuatuWire.DEFAULT_LINE_WIDTH * 0.6) + (this.jointSize || HuatuWire.DEFAULT_JOINT_SIZE * 0.6)
+      : ((this.lineWidth || HuatuWire.DEFAULT_LINE_WIDTH) * 0.6);
+    xMin -= extendSize;
+    xMax += extendSize;
+    yMin -= extendSize;
+    yMax += extendSize;
+    return SvgBBox.fromMaxMins(xMin, xMax, yMin, yMax);
   }
 
   //*------------ STATIC VARs / METHODs --------------------------------------------------*/
@@ -641,7 +745,7 @@ export class HuatuWire implements IHuatuWire {
     return !!(port as IHuatuComponentPortSettled).anchor;
   }
 
-  static DEFAULT_JOINT_SIZE = 6;
+  static DEFAULT_JOINT_SIZE = 10;
   static DEFAULT_LINE_WIDTH = 4;
 
   static TO_HV_TYPES: string[] = [
@@ -670,11 +774,15 @@ export class HuatuWire implements IHuatuWire {
       ["turnAt"],
       ["turnLen"],
       ["net"],
+      ["netColor"],
+      ["netLineWidth", "netlw"],
       ["lineWidth", "width"],
       ["color", "stroke"],
       ["joint"],
       ["jointSize"],
-      ["squareJoint"]
+      ["squareJoint"],
+      ["startArrow"],
+      ["endArrow"],
     ],
     allowAppend: [],
     numbers: [],
@@ -684,6 +792,7 @@ export class HuatuWire implements IHuatuWire {
       "color": isValidColor,
       "stroke": isValidColor,
       "joint": isValidColor,
+      "netColor": isValidColor,
       "type": HuatuWire.TYPES,
       "radius": "number[]",
     },

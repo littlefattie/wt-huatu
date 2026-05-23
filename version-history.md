@@ -2,6 +2,12 @@
 
 Following notes will mark why the library is versioned up:
 
+## V1.4.3
+
+- Remove the eval() usage in code
+- Remove wtVarFuncs
+- Some Bugfixes
+
 ## V1.4.0
 
 - Add a lot features, include wire/net update and optimization

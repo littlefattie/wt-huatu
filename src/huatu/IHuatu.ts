@@ -94,6 +94,14 @@ export interface IHuatuVar {
   def?: string;               // The string that defines the InputVar, This is used to re-calculate var's value
 }
 
+export interface IExprElement {
+  type: "num" | "plus" | "minus" | "power" | "mult" | "div" | "func" | "op" | "cp";
+  text: string;
+  value: number;
+  prev?: IExprElement;
+  next?: IExprElement;
+}
+
 export interface IHuatuPoint {
   name: string;
   howGet: "direct" | "derived" | "calculated" | "intersection";

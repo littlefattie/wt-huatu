@@ -1,26 +1,6 @@
 import type { IHuatuYmlObj, IHuatuYmlValueType } from "../huatu/IHuatuYml.js";
 import { WT_REGEX } from "./regex.js";
 
-export const replaceMathPiAndFuncs = (expr: string): string => {
-  // Replace PI and Math functions, like, sin, cos, exp, pi, etc.
-  const rePi = /\b(pi)\b/gi;
-  const reMathFunc = /\b(sin|cos|tan|atan|asin|acos|dsin|dcos|dtan|datan|dasin|dacos|exp|log|log10|sqrt)\s*(\()/gi;
-  const replacerMathFunc = (match: string, g1: string, g2: string) => {
-    return `globalThis.wtVarFuncs.${g1.toLowerCase()}${g2}`;
-  };
-  return expr
-    .replace(rePi, "Math.PI")
-    .replace(reMathFunc, replacerMathFunc);
-}
-
-export const evalExpr2Number = (expr: string): number | undefined => {
-  try {
-    const num = eval(expr);
-    return typeof num === "number" ? num : undefined;
-  } catch (error) {
-    return undefined;
-  }
-}
 
 export const assignOnlyDefined =  <T extends {}>(target: T, ...sources: T[]): T => {
   sources.forEach(src => {

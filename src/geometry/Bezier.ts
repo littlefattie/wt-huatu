@@ -14,7 +14,7 @@ import Point from "./Point.js";
 import LineSeg from "./LineSeg.js";
 import Vector from "./Vector.js";
 import { AngDeg } from "./AngDeg.js";
-import { solveCubic, solveQuadratic } from "@littlefattie/solve-equations";
+import { solveCubic, solveQuadratic } from "../math/solve-equation.js";
 import { SegmentModel } from "./SegmentModel.js";
 
 export class Bezier {
@@ -41,8 +41,8 @@ export class Bezier {
     const point = [this.pStart as Point, ...this.ctrlPoints, this.pEnd as Point]
       .reduce((pt, p, idx) => {
         return {
-          x: pt.x + p.x * WtMath.bernsteinPolynomial(idx, this.ctrlPoints.length + 2, t),
-          y: pt.x + p.y * WtMath.bernsteinPolynomial(idx, this.ctrlPoints.length + 2, t),
+          x: pt.x + p.x * WtMath.bernsteinPolynomial(idx, this.ctrlPoints.length + 1, t),
+          y: pt.y + p.y * WtMath.bernsteinPolynomial(idx, this.ctrlPoints.length + 1, t),
         }
       }, { x: 0, y: 0 } as IPoint);
     return new Point(point.x, point.y);
@@ -743,7 +743,7 @@ export class Bezier3 implements IBezier3, IGeometryModel, ISegmentModel {
         fxnPrev = fxn(ks, ke);
     const alpha = 0.05,
           fitCriteria = 0.02,
-          ITER_COUNT_MAX = 30000;
+          ITER_COUNT_MAX = 300000;
     while (fxnPrev > fitCriteria && iterCount < ITER_COUNT_MAX) {
       let dks = fxnDks(ks, ke),
           dke = fxnDke(ks, ke);

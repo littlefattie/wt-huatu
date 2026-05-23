@@ -29,6 +29,7 @@ import type {
   HuatuDimMarkArrowType,
   ISolvedXPoints,
   IResultResolveXPoints,
+  IExprElement,
 } from "./IHuatu.js"
 
 import type {
@@ -64,10 +65,8 @@ import {
   type IKeyValueParsingResult,
   booleanCheck,
   ensurePositiveInt,
-  evalExpr2Number,
   indentHtmlLines,
   parseStrIntoKeyValuePair,
-  replaceMathPiAndFuncs,
   resolvePointLike,
   assignOnlyDefined,
   fitNumInRange
@@ -142,7 +141,7 @@ import { SvgPattern } from "../svg/SvgPattern.js";
 import Ring from "../geometry/Ring.js";
 import { PathPolyline } from "../path/PathPolyline.js";
 import { PathPolygon } from "../path/PathPolygon.js";
-import { loadVarFuncsToGlobalThis } from "../math/VarFuncs.js";
+import { varFuncCall } from "../math/VarFuncs.js";
 import { PathRect } from "../path/PathRect.js";
 import { PathTriangle } from "../path/PathTriangle.js";
 import { PathCircle } from "../path/PathCircle.js";
@@ -175,6 +174,7 @@ import {
   type IHuatuDimMarkParams
 } from "./HuatuDimMark.js";
 import { genHex } from "../tools/gen-id.js";
+import { HuatuUserFunc, type IUserFuncResult } from "./HuatuUserFunc.js";
 
 export class WtHuatu implements IHuatu {
   title?: string;
@@ -225,10 +225,6 @@ export class WtHuatu implements IHuatu {
   pointErrors: string[] = [];
 
   constructor() {
-    /* Load Var Funcs to Global if not */
-    if (!globalThis.wtVarFuncs) {
-      loadVarFuncsToGlobalThis();
-    }
     // TODO: If something else need to be added, please append here
   }
 
@@ -238,32 +234,6 @@ export class WtHuatu implements IHuatu {
   static REGEX_DIM_MARK_DEF = /^dimMark\s*[,;\s](.*)$/i;
   static REGEX_SHAPE_AND_DRAWING_DEF = /^([^\|]*)\|\|\|(.*)$/i;
 
-  /**
-   * The shortcut function to replace all the vars in an expression with actual values.
-   * @param expr The expression to be replaced
-   * @returns The result after replaced all the vars
-   */
-  replaceVars(expr: string) {
-    // If already a number, then skip the replacing
-    if (WT_REGEX.FLOAT_NUMBER.test(expr)) return expr;
-    const sortedVars = this.vars
-      .map(v => ({name: v.name, value: v.value}))
-      .sort((a, b) => b.name.length - a.name.length);       // Make the longest var be replaced firstly
-    for (let i = 0; i < sortedVars.length; i++) {
-      const varRegex = new RegExp(`(^|[^.])\\b${sortedVars[i].name}\\b`, "g");
-      expr = expr.replace(varRegex, (m, g1) => `${g1}(${sortedVars[i].value})`)
-    }
-    const unReplacedNames = [...expr.matchAll(/(^|[^.])\b([a-z][a-z0-9_]*)\b([^.]|$)/ig)]
-      .map(x => x[2]);
-    if (unReplacedNames.length > 0) {
-      unReplacedNames.forEach(x => {
-        this.varErrors.push(`Var [${x}] has not been defined!`)
-      });
-      return "";
-    } else {
-      return expr;
-    }
-  }
 
   /**
    * A shortcut function to replace all the occurred point coordinates in a point composing expression
@@ -295,39 +265,6 @@ export class WtHuatu implements IHuatu {
     return exprCopy;
   }
 
-  replaceModelParams(expr: string): string {
-    let exprCopy = expr;
-    const reGetParam = /\b([a-z][a-z0-9_]*)[.](r|rx|ry|rin|rout|rotdeg|rotang|angs|ange|angrange|w|h|len|deg|degr|degs|degsr|dege|deger|clens|clene)\b/ig;
-    const notFoundModels: string[] = [];
-    const notFoundScalars: string[] = [];
-    let reExec = reGetParam.exec(expr);
-    while(reExec) {
-      let modelName = reExec[1];
-      let paramName = reExec[2];
-      let path = this.paths.find(x => x.name === modelName);
-      if (path && path.model) {
-        let param = path.model.getParam(paramName);
-        if (param !== undefined) {
-          const re = new RegExp(`\\b${modelName}[.]${paramName}\\b`);
-          exprCopy = exprCopy.replace(re, `(${param})`);
-        } else {
-          let nfScalar = `${modelName}.${paramName}`;
-          if (!notFoundScalars.includes(nfScalar)) notFoundScalars.push(nfScalar);
-        }
-      } else {
-        this.varErrors.push(`"${modelName}" has not been defined as a shape!`);
-        if (!notFoundModels.includes(modelName)) notFoundModels.push(modelName);
-      }
-      // Search For Next
-      reExec = exprCopy ? reGetParam.exec(expr) : null;
-    }
-    if (notFoundModels.length > 0 || notFoundScalars.length > 0) {
-      notFoundModels.forEach(x => this.varErrors.push(`"${x}" has not been defined as a shape!`));
-      notFoundScalars.forEach(x => this.varErrors.push(`"${x}" cannot to be resolved to any scalar!`))
-      return "";
-    }
-    return exprCopy;
-  }
 
   /**
    * The function to resolve a user input VAR
@@ -340,16 +277,551 @@ export class WtHuatu implements IHuatu {
       this.varErrors.push(`Var Definition mustn't have comma(,) or semi-colon(,)!`);
       return undefined;
     }
-    // Replace PI and Math functions, like, sin, cos, exp, pi, etc.
-    expr = replaceMathPiAndFuncs(expr);
-    // Replace GeometryModel parameters
-    expr = this.replaceModelParams(expr);
-    if (!expr) return undefined;
-    // Replace Var names to values
-    expr = this.replaceVars(expr);
-    if (!expr) return undefined;
-    // Evaluate the final expression
-    return evalExpr2Number(expr);
+    const reMath = /^\s*(sin|cos|tan|atan|asin|acos|dsin|dcos|dtan|datan|dasin|dacos|exp|log|log10|sqrt)\b/i;
+    const reModelParam = /^\s*([a-z][a-z0-9_]*)[.](r|rx|ry|rin|rout|rotdeg|rotang|angs|ange|angrange|w|h|len|deg|degr|degs|degsr|dege|deger|clens|clene)\b/i;
+    const reNdN = /^\s*([a-z][a-z0-9_]*[.][\w0-9]+)\b/i;      // NdN == name dot name
+    const reVar = /^\s*([a-z][a-z0-9_]*)\b/i;
+    const reFloat = /^\s*([0-9]*\.[0-9]+|[0-9]+)([eE][-+]?[0-9]+)?/;
+    const reOp = /^\s*\(/;
+    const reCp = /^\s*\)/;
+    const rePlus = /^\s*[+]/;
+    const reMinus = /^\s*[-]/;
+    const reMult = /^\s*[*]/;
+    const rePower = /^\s*[*][*](?![*])/;
+    const reDiv = /^\s*[/]/;
+    const reUnrecognized = /^\s*[\S]+/;
+    let headEle: IExprElement | undefined = undefined;
+    let tailEle: IExprElement | undefined = undefined;
+    const notFoundModels: string[] = [];
+    const notFoundScalars: string[] = [];
+    const unknownNdNs: string[] = [];
+    const unknownVars: string[] = [];
+    const unrecognized: string[] = [];
+    let opCount = 0,
+        cpCount = 0,
+        cpInAdvance = false;
+
+    // Split the expression to elements
+    let exprCopy = expr.substring(0);
+    const addElement = (ele: IExprElement) => {
+      if (!headEle) {
+        headEle = ele;
+        tailEle = ele;
+      }
+      else {
+        tailEle!.next = ele;
+        ele.prev = tailEle
+        tailEle = ele;
+      }
+    }
+    while (exprCopy) {
+      // Check if PI
+      let res = /^\s*pi\b/i.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "num",
+          text: res[0].trim().toLowerCase(),
+          value: Math.PI,
+        })
+        exprCopy = exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Math functions
+      res =  reMath.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "func",
+          text: res[0].trim().toLowerCase(),
+          value: 0,
+        })
+        exprCopy = exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Model parameters
+      res = reModelParam.exec(exprCopy);
+      if (res) {
+        let modelName = res[1],
+            paramName = res[2],
+            path = this.paths.find(x => x.name === modelName);
+        if (path && path.model) {
+          let param = path.model.getParam(paramName);
+          if (param !== undefined) {
+            addElement({
+              type: "num",
+              text: res[0].trim(),
+              value: param
+            });
+            exprCopy  = exprCopy.substring(res[0].length);
+            continue;
+          } else {
+            let nfScalar = `${modelName}.${paramName}`;
+            if (!notFoundScalars.includes(nfScalar)) notFoundScalars.push(nfScalar);
+          }
+        }
+        else {
+          if (!notFoundModels.includes(modelName)) notFoundModels.push(modelName);
+        }
+      }
+      // Check if Bad Name.Name def
+      res = reNdN.exec(exprCopy);
+      if (res) {
+        let ndn = res[0].trim();
+        if (!unknownNdNs.includes(ndn)) unknownNdNs.push(ndn);
+        exprCopy = exprCopy.substring(res[0].length);
+        continue;
+      }
+      // VarNames
+      res = reVar.exec(exprCopy);
+      if (res) {
+        let vName = res[0].trim(),
+            vDef = this.vars.find(x => x.name === vName);
+        if (vDef) {
+          addElement({
+            type: "num",
+            text: vName,
+            value: vDef.value,
+          });
+        }
+        else {
+          unknownVars.push(vName);
+        }
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Float numbers
+      res = reFloat.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "num",
+          text: res[0].trim(),
+          value: parseFloat(res[0].trim()),
+        })
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Open Parenthesis
+      res = reOp.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "op",
+          text: '(',
+          value: 0,
+        })
+        opCount++;
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Close Parenthesis
+      res = reCp.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "cp",
+          text: ')',
+          value: 0,
+        })
+        cpCount++;
+        if (opCount < cpCount) cpInAdvance = true;
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Plus
+      res = rePlus.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "plus",
+          text: '+',
+          value: 0,
+        })
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Minus
+      res = reMinus.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "minus",
+          text: '-',
+          value: 0,
+        })
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Power operator (**)
+      res = rePower.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "power",
+          text: '**',
+          value: 0,
+        });
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Mult
+      res = reMult.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "mult",
+          text: '*',
+          value: 0,
+        })
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Divide
+      res = reDiv.exec(exprCopy);
+      if (res) {
+        addElement({
+          type: "div",
+          text: '/',
+          value: 0,
+        })
+        exprCopy =  exprCopy.substring(res[0].length);
+        continue;
+      }
+      // Unrecognized parts
+      res = reUnrecognized.exec(exprCopy);
+      if (res) {
+        let portion = res[0].trim();
+        if (!unrecognized.includes(portion)) unrecognized.push(portion);
+        exprCopy = exprCopy.substring(res[0].length);
+        continue;
+      }
+      // If no match, make it finished
+      exprCopy = "";
+    }
+    if (!headEle || !tailEle) {
+      this.varErrors.push(`Invalid var definition: ${expr}`);
+      return undefined;
+    }
+    // Check Error
+    if (unknownVars.length > 0 || unknownNdNs.length > 0 || notFoundModels.length > 0 || notFoundScalars.length  > 0 || unrecognized.length > 0 || cpCount !== opCount || cpInAdvance) {
+      unknownVars.forEach(x => this.varErrors.push(`Var [${x}] has not been defined! !`));
+      unknownNdNs.forEach(x => this.varErrors.push(`Var Definition contains unresolvable elements: [${x}] !`));
+      notFoundModels.forEach(x => this.varErrors.push(`"${x}" has not been defined as a shape!`));
+      notFoundScalars.forEach(x => this.varErrors.push(`"${x}" cannot to be resolved to any scalar!`));
+      unrecognized.forEach(x => this.varErrors.push(`Unrecognizable "${x}"`));
+      if (cpInAdvance) this.varErrors.push(`Var Definition has unpaired parenthesis (close parenthesis coming first) !`);
+      else if (cpCount !== opCount) this.varErrors.push(`Var Definition has unpaired parenthesis!`);
+      return undefined;
+    }
+
+    const calcSingleParenthesis = (head: IExprElement, tail: IExprElement): {
+      text: string;
+      value: number;
+      errorMsg?: string;
+    } => {
+      let ptr = head;
+      // Functions Check
+      while (ptr !== tail) {
+        if (ptr.type === "func") {
+          let param = ptr.next!;
+          let funcText = `${ptr.text}${param.text}`;
+          if (param.type === "num") {
+            let val = varFuncCall(ptr.text, param.value);
+            if (val === undefined) {
+              return {
+                errorMsg: `'${funcText}' resolves to no value`,
+                text: funcText,
+                value: 0,
+              }
+            }
+            else if (isNaN(val)) {
+              let msg = ptr.text === "sqrt"
+                ? `, Maybe Minus(-) value for Sqrt?`
+                : ptr.text === "log" || ptr.text === "log10"
+                ? `, Maybe Minus(-) value for Log?`
+                : ``;
+              return {
+                errorMsg: `'${funcText}' resolves to NaN (not a value)${msg}`,
+                text: funcText,
+                value: 0,
+              }
+            }
+            else {
+              // Change current element to a num
+              ptr.value = val;
+              ptr.text = funcText;
+              ptr.type = "num";
+              ptr.next = param.next!;
+              param.next!.prev = ptr;
+              ptr = ptr.next;
+            }
+          } else {
+            return {
+              errorMsg: `function use '${funcText}' is incorrect`,
+              text: `${funcText}`,
+              value: 0,
+            }
+          }
+        }
+        else {
+          ptr = ptr.next!;
+        }
+      }
+      // Power check
+      ptr = head;
+      while (ptr !== tail) {
+        if (ptr.type === "power") {
+          let pLeft = ptr.prev,
+              pRight = ptr.next;
+          if (!pLeft || pLeft.type !== "num" || !pRight || pRight.type !== "num") {
+            return {
+              errorMsg: `Error to power calculation: ${ptr.prev!.text} ** ${ptr.next?.text || ''}`,
+              text: `${ptr.prev!.text} ** ${ptr.next?.text || ''}`,
+              value: 0,
+            }
+          }
+          pLeft.text = `${pLeft.text} ** ${pRight.text}`;
+          pLeft.value = Math.pow(pLeft.value, pRight.value);
+          pLeft.next = pRight.next;
+          pRight.next!.prev = pLeft;
+          ptr = pRight.next!;
+        }
+        else {
+          // Move Next
+          ptr = ptr.next!;
+        }
+      }
+      // Multiply / divide check
+      ptr = head;
+      while (ptr !== tail) {
+        if (ptr.type === "mult") {
+          let pLeft = ptr.prev,
+              pRight = ptr.next;
+          if (!pLeft || pLeft.type !== "num" || !pRight || pRight.type !== "num") {
+            return {
+              errorMsg: `Error to multiply: ${ptr.prev!.text} * ${ptr.next?.text || ''}`,
+              text: `${ptr.prev!.text} * ${ptr.next?.text || ''}`,
+              value: 0,
+            }
+          }
+          pLeft.text = `${pLeft.text} * ${pRight.text}`;
+          pLeft.value = pLeft.value * pRight.value;
+          pLeft.next = pRight.next;
+          pRight.next!.prev = pLeft;
+          ptr = pRight.next!;
+        }
+        else if (ptr.type === "div") {
+          let pLeft = ptr.prev,
+              pRight = ptr.next;
+          if (!pLeft || pLeft.type !== "num" || !pRight || pRight.type !== "num") {
+            return {
+              errorMsg: `Error to divide: ${ptr.prev!.text} / ${ptr.next?.text || ''}`,
+              text: `${ptr.prev!.text} / ${ptr.next?.text || ''}`,
+              value: 0,
+            }
+          }
+          if (WtMath.isZero(pRight.value)) {
+            return {
+              errorMsg: `Cannot divide zero (/0): ${ptr.prev!.text} / ${ptr.next?.text || ''}`,
+              text: `${ptr.prev!.text} / ${ptr.next?.text || ''}`,
+              value: 0,
+            }
+          }
+          pLeft.text = `${pLeft.text} / ${pRight.text}`;
+          pLeft.value = pLeft.value / pRight.value;
+          pLeft.next = pRight.next;
+          pRight.next!.prev = pLeft;
+          ptr = pRight.next!;
+        }
+        else {
+          // Move Next
+          ptr = ptr.next!;
+        }
+      }
+      // Plus and Minus
+      head.prev = undefined;
+      ptr = head;
+      while (ptr !== tail) {
+        if (ptr.type === 'plus') {
+          let pLeft = ptr.prev,
+              pRight = ptr.next;
+          if (!pRight || pRight.type !== "num") {
+            return {
+              errorMsg: `Right operand of (+) is empty`,
+              text: '',
+              value: 0,
+            }
+          }
+          if (!pLeft) {
+            ptr.value = pRight.value;
+            ptr.type = "num";
+            ptr.text = `${pRight.text}`;
+            ptr.next = pRight.next;
+            pRight.next!.prev = ptr;
+            ptr = pRight.next!;
+          }
+          else if (pLeft.type !== "num") {
+            return {
+              errorMsg: `Left operand of (+) is incorrect: ${pLeft.text}`,
+              text: `${pLeft.text}`,
+              value: 0
+            }
+          }
+          else {
+            pLeft.value = pLeft.value + pRight.value;
+            pLeft.text = `${pLeft.text} + ${pRight.text}`;
+            pLeft.next = pRight.next;
+            pRight.next!.prev = pLeft;
+            ptr = pRight.next!;
+          }
+        }
+        else if (ptr.type === "minus") {
+          let pLeft = ptr.prev,
+              pRight = ptr.next;
+          if (!pRight || pRight.type !== "num") {
+            return {
+              errorMsg: `Right operand of (-) is empty`,
+              text: '',
+              value: 0,
+            }
+          }
+          if (!pLeft) {
+            ptr.value = 0 - pRight.value;
+            ptr.type = "num";
+            ptr.text = `-${pRight.text}`;
+            ptr.next = pRight.next;
+            pRight.next!.prev = ptr;
+            ptr = pRight.next!;
+          }
+          else if (pLeft.type !== "num") {
+            return {
+              errorMsg: `Left operand of (-) is incorrect: ${pLeft.text}`,
+              text: `${pLeft.text}`,
+              value: 0
+            }
+          }
+          else {
+            pLeft.value = pLeft.value - pRight.value;
+            pLeft.text = `${pLeft.text} - ${pRight.text}`;
+            pLeft.next = pRight.next;
+            pRight.next!.prev = pLeft;
+            ptr = pRight.next!;
+          }
+        }
+        else {
+          // Move Next
+          ptr = ptr.next!;
+        }
+      }
+      // Check if anything wrong
+      if (head.next != tail) {
+        return {
+          errorMsg: `Parenthesis Calculation error`,
+          text: `${head.text}`,
+          value: 0
+        }
+      }
+      // Return the head element which holds the calculation result
+      return {
+        text: head.text,
+        value: head.value,
+      }
+    }
+
+    // The function to Resolve Parenthesis content
+    // The parameter `head` is the opening parenthesis
+    const resolveParenthesis = (head: IExprElement): {
+      end?: IExprElement;
+      result: "value" | "unmatched" | "empty" | "error",
+      value:  number;
+      text?: string;
+    } => {
+      // let pText = head.text;
+      let pN = head.next;
+      if (!pN) return {
+        result: "unmatched",
+        value: 0,
+      };
+      if (pN.type === "cp") return {
+        result: "empty",
+        value: 0,
+      }
+      let contentHead = pN,
+          contentTail: IExprElement,
+          closed = false,
+          ptr = contentHead;
+      while (!closed) {
+        if (ptr.type === "op") {
+          // It is another cascading parenthesis
+          let parenIn = resolveParenthesis(ptr);
+          if (parenIn.result === "value") {
+            ptr.next = parenIn.end,
+            ptr.type = "num",
+            ptr.value = parenIn.value;
+            ptr.text = parenIn.text || "";
+            if (parenIn.end) {
+              // After resolved, shrink it
+              parenIn.end.prev = ptr;
+            }
+          } else {
+            return parenIn;
+          }
+        }
+        else if (ptr.type === "cp") {
+          contentTail = ptr;
+          // Close Here
+          closed = true;
+        }
+        else {
+          if (!ptr.next) {
+            return {
+              result: "unmatched",
+              value: 0,
+            }
+          } else {
+            ptr = ptr.next;
+          }
+        }
+      }
+      let resCalc = calcSingleParenthesis(contentHead, contentTail!);
+      return resCalc.errorMsg
+        ? {
+          result: "error",
+          value: 0,
+          text: resCalc.errorMsg
+        }
+        : {
+          result: "value",
+          value: resCalc.value,
+          text: `(${resCalc.text})`,
+          end: contentTail!.next
+        }
+    }
+    
+    // Add start and end parenthesis to re-use the iterative tooling function
+    let eleStart: IExprElement = {
+      type: "op",
+      text: "(",
+      value: 0,
+      next: headEle,
+    };
+    (headEle as IExprElement).prev = eleStart;
+    (tailEle as IExprElement).next = {
+      type: "cp",
+      text: ")",
+      value: 0,
+      prev: (tailEle as IExprElement),
+    };
+    let res = resolveParenthesis(eleStart);
+    if (res.result === "value") {
+      if (isNaN(res.value)) {
+        this.varErrors.push(`var definition '${expr}' resolved to NaN (not a value)!`);
+      } else {
+        return res.value;
+      }
+    }
+    else if (res.result === "empty") {
+      this.varErrors.push(`var definition '${expr}' has empty parenthesis!`);
+    }
+    else if (res.result ===  "unmatched") {
+      this.varErrors.push(`var definition '${expr}' has unpaired parenthesis!`);
+    }
+    else if (res.result === "error") {
+      this.varErrors.push(res.text || "");
+    }
+    return undefined;
   }
 
   /**
@@ -2306,23 +2778,9 @@ export class WtHuatu implements IHuatu {
    * @param paramCount How many inputs the function will take, normally, 1 or 2
    * @returns The function or undefined
    */
-  testUserFunc(funcDef: string, paramCount: number): Function | undefined {
-    try {
-      const tryFunc = eval(funcDef);
-      if (!tryFunc || typeof tryFunc !== "function") return undefined;
-      if (paramCount === 1) {
-        let x = tryFunc(1);
-        // Return the function if no error
-        if (typeof x === "number" && x > 0) return tryFunc;
-      } else if (paramCount === 2) {
-        let x = tryFunc(1, 2);
-        // Return the function if no error
-        if (typeof x === "number" && x > 0) return tryFunc;
-      }
-      // NOTE: For paramCount greater than 2, no definition, will be filtered out
-    } catch (error) {
-      return undefined;
-    }
+  testUserFunc(funcDef: string, paramCount: number): IUserFuncResult | undefined {
+    let userFunc = HuatuUserFunc.testFunc(funcDef);
+    if (userFunc && userFunc.paramCount === paramCount) return userFunc;
     return undefined;
   }
 
@@ -2404,10 +2862,10 @@ export class WtHuatu implements IHuatu {
         if (deg) rotDeg = deg;
       }
       if(param.method === "line") {
-        let scale: number | ((n: number) => number) | undefined;
+        let scale: number | IUserFuncResult | undefined;
         if (param.scale) {
-          const tryFunc = this.testUserFunc(param.scale, 1);
-          if (tryFunc) scale = tryFunc as ((n: number) => number);
+          const scaleFunc = this.testUserFunc(param.scale, 1);
+          if (scaleFunc) scale = scaleFunc;
           else {
             const tryNum = this.resolveVarExpr(param.scale);
             if (tryNum) scale = tryNum;
@@ -2420,10 +2878,10 @@ export class WtHuatu implements IHuatu {
             countY = 1;
         if (param.countX) countX = param.countX;
         if (param.countY) countY = param.countY;
-        let scale: number | ((nx: number, ny: number) => number) | undefined;
+        let scale: number | IUserFuncResult | undefined;
         if (param.scale) {
-          const tryFunc = this.testUserFunc(param.scale, 2);
-          if (tryFunc) scale = tryFunc as ((nx: number, ny: number) => number);
+          const scaleFunc = this.testUserFunc(param.scale, 2);
+          if (scaleFunc) scale = scaleFunc;
           else {
             const tryNum = this.resolveVarExpr(param.scale);
             if (tryNum) scale = tryNum;
@@ -2433,13 +2891,13 @@ export class WtHuatu implements IHuatu {
         array.config2D(point, countX, countY, dx, dy, scale, rotDeg);
       }
     } else {      // This is polar
-      let radius: number | ((theta: number) => number) | undefined,
-          scale: number | ((radius: number) => number) | undefined,
+      let radius: number | IUserFuncResult | undefined,
+          scale: number | IUserFuncResult | undefined,
           startDeg: number | undefined,
           deltaDeg: number | undefined;
       if (param.radius) {
-        const tryFunc = this.testUserFunc(param.radius, 1);
-        if (tryFunc) radius = tryFunc as ((theta: number) => number);
+        const radiusFunc = this.testUserFunc(param.radius, 1);
+        if (radiusFunc) radius = radiusFunc;
         else {
           const tryNum = this.resolveVarExpr(param.radius);
           if (tryNum) radius = tryNum;
@@ -2450,8 +2908,8 @@ export class WtHuatu implements IHuatu {
         this.warnings.push(`No Radius specified for Symbol Array, will use default, which is 10x Symbol BBOX height!`);
       }
       if (param.scale) {
-        const tryFunc = this.testUserFunc(param.scale, 1);
-        if (tryFunc) scale = tryFunc as ((radius: number) => number);
+        const scaleFunc = this.testUserFunc(param.scale, 1);
+        if (scaleFunc) scale = scaleFunc;
         else {
           const tryNum = this.resolveVarExpr(param.scale);
           if (tryNum && tryNum > 0) scale = tryNum;
@@ -3552,7 +4010,7 @@ export class WtHuatu implements IHuatu {
   resetNetTrunkDrawStatus() {
     this.nets.forEach(n => n.resetTrunkDrawnStatus());
   }
-  
+
   /**
    * Resolve Layer definition, the input might be a string, or a string list
    * @param name Name of the Layer
@@ -4094,7 +4552,7 @@ export class WtHuatu implements IHuatu {
     "dsin","dcos","dtan","datan","dasin","dacos",
     "exp", "log", "log10","sqrt",
     "pi", "math",
-    "this", "globalthis", "wtvarfuncs",
+    "this", "globalthis",
   ];
 
 }

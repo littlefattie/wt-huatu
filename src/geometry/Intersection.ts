@@ -14,7 +14,7 @@ import type {
   IEllipseTouchingPoint,
 } from './Ellipse.js';
 
-import { solveCubic, solveQuadratic } from '@littlefattie/solve-equations';
+import { solveCubic, solveQuadratic } from '../math/solve-equation.js';
 
 import { AngDeg } from './AngDeg.js';
 import { WtMath } from '../math/WtMath.js';

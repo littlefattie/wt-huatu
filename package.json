@@ -1,6 +1,6 @@
 {
   "name": "wt-huatu",
-  "version": "1.4.1",
+  "version": "1.4.3",
   "description": "wt-huatu, a graph drawing library. Let's draw in a programming way.",
   "main": "index.js",
   "type": "module",
@@ -31,7 +31,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@littlefattie/solve-equations": "^1.0.5",
     "katex": "^0.16.9"
   }
 }

@@ -1,5 +1,5 @@
 import Point from "../src/geometry/Point.js";
-import { Bezier2, Bezier3 } from "../src/geometry/Bezier.js";
+import { Bezier, Bezier2, Bezier3 } from "../src/geometry/Bezier.js";
 import Angle from "../src/geometry/Angle.js";
 import Line from "../src/geometry/Line.js";
 import Polygon from "../src/geometry/Polygon.js";
@@ -85,3 +85,23 @@ console.log(htmlb3);
 console.log(htmlb3ls1);
 console.log(htmlb3Sub1);
 console.log(htmlb3Sub2);
+
+let p0 = new Point(0,0),
+    p1 = new Point(100, 0),
+    pM = new Point(50, 30),
+    pM1 = new Point(0, 30),
+    pM2 = new Point(100, 30);
+const b0T2 = new Bezier(p0, pM, p1),
+      b0T3 = new Bezier(p0, pM1, pM2, p1),
+      b2T = new Bezier2(p0, pM, p1),
+      b3T = new Bezier3(p0, pM1, pM2, p1);
+
+console.log("b0 T2 -> 0.2:", b0T2.calcPoint(0.2));
+console.log("b2: -> 0.2", b2T.calcPoint(0.2));
+console.log("b0 T2 -> 0.72:", b0T2.calcPoint(0.72));
+console.log("b2: -> 0.72", b2T.calcPoint(0.72));
+
+console.log("b0 T3 -> 0.3:", b0T3.calcPoint(0.3));
+console.log("b3->0.3:", b3T.calcPoint(0.3));
+console.log("b0 T3 -> 0.72:", b0T3.calcPoint(0.72));
+console.log("b3->0.72:", b3T.calcPoint(0.72));

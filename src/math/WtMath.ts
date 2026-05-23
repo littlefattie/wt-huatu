@@ -1,4 +1,4 @@
-import { solveQuartic } from "@littlefattie/solve-equations";
+import { solveQuartic } from "./solve-equation.js";
 import { Matrix2by2 } from "./Matrix.js";
 
 export interface INewtonMethodResult {

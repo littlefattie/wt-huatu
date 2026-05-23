@@ -201,7 +201,7 @@ export class SegmentModel {
         t2 = 0,
         p2p = fxnR2(t1, t2),
         xCriteria = 2e-3,
-        iterMax = 30000,
+        iterMax = 300000,
         iterCount = 0;
     while (p2p > xCriteria && iterCount < iterMax) {
       let alpha = p2p > 4 ? 1e-5 : p2p > 0.1 ? 1e-6 : 1e-8;

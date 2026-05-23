@@ -25,6 +25,7 @@ import { HuatuStyle } from "./HuatuStyle.js";
 import { HuatuDrawingGroup } from "./HuatuDrawingGroup.js";
 import { HuatuSymbol } from "./HuatuSymbol.js";
 import { type IKeyValueOptions } from "../tools/utils.js";
+import { HuatuUserFunc, type IUserFuncResult } from "./HuatuUserFunc.js";
 
 export interface IHuatuSymbolArrayParams {
   symbol?: string;
@@ -95,7 +96,7 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
     count: number,
     dx?: number,
     dy?: number,
-    scale?: number | ((n: number) => number),
+    scale?: number | IUserFuncResult,
     rotDeg?: number
   ) {
     this.startPoint = startPoint;
@@ -115,15 +116,11 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
         y: this.startPoint.y + i * this.deltaY
       };
       if (scale) {
-        if (typeof scale === "function") {
-          try {
-            let newScale = scale(i);
-            if (newScale && newScale > 0) transform.scale = newScale;
-          } catch (error) {
-            // Nothing to do
-          }
-        } else {
+        if (typeof scale === "number") {
           transform.scale = scale;
+        } else {
+          let newScale = HuatuUserFunc.calcFunc(scale, [i]);
+          if (newScale && newScale > 0) transform.scale = newScale;
         }
       }
       if (rotDeg) transform.rotDeg = rotDeg;
@@ -147,7 +144,7 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
     countY: number,
     dx?: number,
     dy?: number,
-    scale?: number | ((nx: number, ny: number) => number),
+    scale?: number | IUserFuncResult,
     rotDeg?: number
   ) {
     this.startPoint = startPoint;
@@ -171,15 +168,11 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
           y: this.startPoint.y + iY * this.deltaY,
         };
         if (scale) {
-          if (typeof scale === "function") {
-            try {
-              let newScale = scale(iX, iY);
-              if (newScale && newScale > 0) transform.scale = newScale;
-            } catch (error) {
-              // Nothing to do
-            }
-          } else {
+          if (typeof scale === "number") {
             transform.scale = scale;
+          } else {
+            let newScale = HuatuUserFunc.calcFunc(scale, [iX, iY]);
+            if (newScale && newScale > 0) transform.scale = newScale;
           }
         }
         if (rotDeg) transform.rotDeg = rotDeg;
@@ -204,8 +197,8 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
   configPolar(
     count: number,
     center: ISvgPoint,
-    radius: number | ((theta: number) => number),
-    scale?: number | ((radius: number) => number),      // The Scale parameter, if could be the function of Radius
+    radius: number | IUserFuncResult,
+    scale?: number | IUserFuncResult,      // The Scale parameter, if could be the function of Radius
     startDeg?: number,
     deltaDeg?: number,
     symbolNotRotate?: boolean
@@ -231,12 +224,8 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
       // Default radius will be zero, i.e. if no radius specified, all the symbols will be placed at 'Center'
       let r = 0;
       if (constantRadius) r = constantRadius;
-      else if (typeof radius === "function") {
-        try {
-          r = radius(ang);                            // Use the angle in Radian
-        } catch (error) {
-          // Nothing to do
-        }
+      else if (typeof radius === "object") {
+        r = HuatuUserFunc.calcFunc(radius, [ang]) || 0;  // Use the angle in Radian
       }
       const loc = Vector.fromPoint(this.center).moveByLenAndAng(r, ang);
       const transform: IHuatuTransform = {
@@ -247,13 +236,9 @@ export class HuatuSymbolArray extends HuatuDrawingGroup implements IHuatuSymbolA
         transform.rotDeg = deg;
       }
       if (scale) {
-        if (typeof scale === "function") {
-          try {
-            let newScale = scale(r);                  // Scale is a func of Radius, please note
-            if (newScale && newScale > 0) transform.scale = newScale;
-          } catch (error) {
-            // Nothing to do
-          }
+        if (typeof scale === "object") {
+          let newScale = HuatuUserFunc.calcFunc(scale, [r]);                  // Scale is a func of Radius, please note
+          if (newScale && newScale > 0) transform.scale = newScale;
         } else {
           transform.scale = scale;
         }

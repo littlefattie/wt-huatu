@@ -149,6 +149,7 @@ export interface IHuatuLabelStylePure {
   font?: string;
   fontSize?: number;
   textAlign?: string;
+  vAlign?: string;
   bold?: boolean;
   italic?: boolean;
   addLine?: string;

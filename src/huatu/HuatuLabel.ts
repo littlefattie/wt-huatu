@@ -74,6 +74,7 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
   font?: string;
   fontSize?: number;
   textAlign?: string;
+  vAlign?: string;
   bold?: boolean;
   italic?: boolean;
   addLine?: string;
@@ -164,6 +165,8 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
     if (this.bold) styles.push([`font-weight`, `bold`]);
     if (this.italic) styles.push([`font-style`, `italic`]);
     if (this.textAlign) styles.push([`text-align`, this.textAlign]);
+    if (this.vAlign === "top") styles.push([`margin-top`, `0`]);
+    else if (this.vAlign === "bottom") styles.push([`margin-bottom`, `0`]);
     if (this.addLine) {
       const decorLine = HuatuLabelStyle.getDecorationLine(this.addLine);
       if (decorLine) styles.push([`text-decoration`, decorLine]);
@@ -263,6 +266,8 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
       this.location.y = refPoint.y * 2 - this.location.y;
       this.anchorOffset.y = -this.anchorOffset.y
       this.anchorY = -1 * this.anchorY;
+      if (this.vAlign === "top") this.vAlign = "bottom";
+      else if (this.vAlign === "bottom") this.vAlign = "top";
     } 
     else if (placement.mirror === "xy") {
       this.location.x = refPoint.x * 2 - this.location.x;
@@ -273,6 +278,8 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
       this.anchorY = -1 * this.anchorY;
       if (this.textAlign === "left") this.textAlign = "right";
       else if (this.textAlign === "right") this.textAlign = "left";
+      if (this.vAlign === "top") this.vAlign = "bottom";
+      else if (this.vAlign === "bottom") this.vAlign = "top";
     }
     // Handling Rotating
     if (placement.rotDeg) {

@@ -10,6 +10,7 @@ import { genHex } from "../tools/gen-id.js";
 export interface IHuatuLabelStyleParams {
   refs?: string;
   textAlign?: string;
+  vAlign?: string;
   bold?: boolean;
   italic?: boolean;
   addLine?: string;
@@ -39,6 +40,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     "middle", "middleline", "through", "strike-through", "strikethrough"
   ];
   static TEXT_ALIGNS = ["left", "right", "center"];
+  static VERTICAL_ALIGNS = ["top", "bottom", "center"];
 
 
   refStyles: HuatuLabelStyle[] = [];
@@ -48,6 +50,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
   font?: string;
   fontSize?: number;
   textAlign?: string;
+  vAlign?: string;
   bold?: boolean;
   italic?: boolean;
   addLine?: string;
@@ -85,6 +88,11 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     }
     if (this.textAlign) {
       attrs.push([`text-align`, this.textAlign]);
+    }
+    if (this.vAlign === "top") {
+      attrs.push([`margin-top`, `0`]);
+    } else if (this.vAlign === "bottom") {
+      attrs.push([`margin-bottom`, `0`]);
     }
     if (this.lineHeight) {
       attrs.push([`line-height`, `${this.lineHeight}`]);
@@ -129,6 +137,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     if (srcStyle.font)                 styPure.font       = srcStyle.font;
     if (srcStyle.fontSize)             styPure.fontSize   = srcStyle.fontSize;
     if (srcStyle.textAlign)            styPure.textAlign  = srcStyle.textAlign;
+    if (srcStyle.vAlign)               styPure.vAlign     = srcStyle.vAlign;
     if (srcStyle.bold !== undefined)   styPure.bold       = srcStyle.bold;
     if (srcStyle.italic !== undefined) styPure.italic     = srcStyle.italic;
     if (srcStyle.addLine)              styPure.addLine    = srcStyle.addLine;
@@ -141,6 +150,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     if (!sty.font       && srcStyle.font)       sty.font       = srcStyle.font;
     if (!sty.fontSize   && srcStyle.fontSize)   sty.fontSize   = srcStyle.fontSize;
     if (!sty.textAlign  && srcStyle.textAlign)  sty.textAlign  = srcStyle.textAlign;
+    if (!sty.vAlign     && srcStyle.vAlign)     sty.vAlign     = srcStyle.vAlign;
     if (sty.bold === undefined)                 sty.bold       = srcStyle.bold;
     if (sty.italic === undefined)               sty.italic     = srcStyle.italic;
     if (!sty.addLine    && srcStyle.addLine)    sty.addLine    = srcStyle.addLine;
@@ -153,6 +163,7 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
     if (override.font)                 targetSty.font       = override.font;
     if (override.fontSize)             targetSty.fontSize   = override.fontSize;
     if (override.textAlign)            targetSty.textAlign  = override.textAlign;
+    if (override.vAlign)               targetSty.vAlign     = override.vAlign;
     if (override.bold !== undefined)   targetSty.bold       = override.bold;
     if (override.italic !== undefined) targetSty.italic     = override.italic;
     if (override.addLine)              targetSty.addLine    = override.addLine;

@@ -2623,6 +2623,7 @@ export class WtHuatu implements IHuatu {
       keys: [
         ["refs", "styles", "style", "ref"],
         ["textAlign", "align"],
+        ["vAlign"],
         ["bold"],
         ["italic"],
         ["addLine", "line"],
@@ -2640,12 +2641,14 @@ export class WtHuatu implements IHuatu {
         "color": isValidColor,
         "fontColor": isValidColor,
         "textAlign": HuatuLabelStyle.TEXT_ALIGNS,
+        "vAlign": HuatuLabelStyle.VERTICAL_ALIGNS,
         "align": HuatuLabelStyle.TEXT_ALIGNS,
         "addLine": HuatuLabelStyle.DECORATION_LINES,
         "line": HuatuLabelStyle.DECORATION_LINES,
       },
       blindGuess: {
         "textAlign": HuatuLabelStyle.TEXT_ALIGNS,
+        "vAlign": HuatuLabelStyle.VERTICAL_ALIGNS,
         "addLine": [
           "over", "overline",
           "under", "underline",
@@ -2709,6 +2712,7 @@ export class WtHuatu implements IHuatu {
         });
     }
     if (lsParams.textAlign) lblStyle.textAlign = lsParams.textAlign;
+    if (lsParams.vAlign) lblStyle.vAlign = lsParams.vAlign;
     if (lsParams.color) lblStyle.color = lsParams.color;
     if (lsParams.fontName) lblStyle.font = lsParams.fontName;
     if (lsParams.bold !== undefined) lblStyle.bold = lsParams.bold;
@@ -3163,6 +3167,7 @@ export class WtHuatu implements IHuatu {
         ["width", "w"],
         ["height", "h"],
         ["textAlign", "align"],
+        ["vAlign"],
         ["bold"],
         ["italic"],
         ["addLine", "line"],
@@ -3187,6 +3192,7 @@ export class WtHuatu implements IHuatu {
         "fontColor": isValidColor,
         "anchor": HuatuLabel.ANCHOR_POSITIONS,
         "textAlign": HuatuLabelStyle.TEXT_ALIGNS,
+        "vAlign": HuatuLabelStyle.VERTICAL_ALIGNS,
         "align": HuatuLabelStyle.TEXT_ALIGNS,
         "addLine": HuatuLabelStyle.DECORATION_LINES,
         "bgColor": isValidColor,
@@ -3198,6 +3204,7 @@ export class WtHuatu implements IHuatu {
       },
       blindGuess: {
         "textAlign": HuatuLabelStyle.TEXT_ALIGNS,
+        "vAlign": HuatuLabelStyle.VERTICAL_ALIGNS,
         "anchor": HuatuLabel.ANCHOR_POSITIONS,
         "addLine": [
           "over", "overline",
@@ -3300,6 +3307,7 @@ export class WtHuatu implements IHuatu {
     }
     if (resBody.anchor)  label.setAnchor(resBody.anchor);
     if (resBody.textAlign) label.textAlign = resBody.textAlign;
+    if (resBody.vAlign) label.vAlign = resBody.vAlign;
     if (resBody.bold) label.bold = resBody.bold;
     if (resBody.italic) label.italic = resBody.italic;
     if (resBody.addLine) label.addLine = resBody.addLine;

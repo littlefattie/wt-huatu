@@ -387,7 +387,7 @@ export class HuatuAngleMark implements IHuatuAngleMark, IHuatuFinalDraw {
       ? this.label.buildHtml(buildType)
       : "";
     const anchorMark = htConfig && htConfig.markPositions
-      ? `<circle cx="${this.labelLoc.x}" cy="${this.labelLoc.y}" r="0.5" class="wthuatu-mark-position-${globalThis.wthtJobBuildId}" />`
+      ? `<circle cx="${this.labelLoc.x}" cy="${this.labelLoc.y}" r="${htConfig.markSize || 0.5}" class="wthuatu-mark-position-${globalThis.wthtJobBuildId}" />`
       : ``;
     const bboxSvg = globalThis.wtHuatuConfig && globalThis.wtHuatuConfig.showBBox
       ? `${this.getBBox().buildRectSvg(true)}`

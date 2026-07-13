@@ -29,9 +29,11 @@ export class HuatuClipPath implements IHuatuClipPath, IHuatuDefinable {
     const attrs: string[] = [
       `id="${this.buildId()}"`
     ];
-    if (this.clipRule === "evenodd") attrs.push(`clip-rule="${this.clipRule}"`);
+    let pathSvgs = this.paths.map(p => p.buildPathHtmlOnly())
+      .map(s => this.clipRule === "evenodd" && s.startsWith("<path") ? s.replace(/^<path/, `<path clip-rule="evenodd"`) : s)
+      .join("\n");
     return `<clipPath ${attrs.join(" ")} >\n`
-      + this.paths.map(p => p.buildPathHtmlOnly()).join("\n")
+      + pathSvgs
       + `\n</clipPath>`;
   }
 

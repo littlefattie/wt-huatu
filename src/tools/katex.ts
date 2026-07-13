@@ -40,6 +40,7 @@ export const renderKatexInlineWithBlockForm = (math: string): string => {
 export const renderKatexMixedText = (text: string): string => {
   const buildTextSpan = (s: string) => {
     let lnEscaped = s
+      .replace(/\\\$/g,'$')
       .replace(/\\\\r\\\\n\b/g,'<br/>')
       .replace(/\\\\n\\\\r\b/g,'<br/>')
       .replace(/\\\\r\b/g,'<br/>')

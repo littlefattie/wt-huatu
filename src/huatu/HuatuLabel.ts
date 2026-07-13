@@ -221,7 +221,7 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
       + foHtml + `\n`
       + `</g>`;
     const anchorMark = htConfig && htConfig.markPositions
-      ? `<circle cx="${realLoc.x}" cy="${realLoc.y}" r="1" class="wthuatu-mark-position-${globalThis.wthtJobBuildId}" />`
+      ? `<circle cx="${realLoc.x}" cy="${realLoc.y}" r="${htConfig.markSize || 1}" class="wthuatu-mark-position-${globalThis.wthtJobBuildId}" />`
       : ``;
     const bboxSvg = globalThis.wtHuatuConfig && globalThis.wtHuatuConfig.showBBox
       ? `${this.getBBox().buildRectSvg(true)}`

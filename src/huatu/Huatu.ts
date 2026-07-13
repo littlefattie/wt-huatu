@@ -2943,43 +2943,57 @@ export class WtHuatu implements IHuatu {
   resolveClip(name: string, value: string | string[]): string[] {
     // Check Name
     if (this.clips.find(c => c.name === name)) return [`Clip '${name}' has already been defined, please choose another name!`];
-    const resolveClipPath = (def: string): IGeometryModel[] | string => {
-      const matchClipRule = def.match(/^(clip-)?rule[\s]*[,;\s][\s]*(nonzero|evenodd)$/i);
-      if (matchClipRule) return matchClipRule[2];
-      const tryPath = this.paths.find(p => p.name === def);
-      if (tryPath && tryPath.model) return [tryPath.model];
-      const tryPathSeries = this.pathSeries.find(ps => ps.name === def);
-      if (tryPathSeries && tryPathSeries.models.length > 0) return tryPathSeries.models;
-      const resolvedShape = this.resolveShapeDef(def);
-      if (typeof resolvedShape === "string") return resolvedShape;
-      else return [resolvedShape];
-    }
     const defs = typeof value === "string"
       ? [value]
       : value;
+    const paths: ISvgPath[] = [];
     const errs: string[] = [];
     const models: IGeometryModel[] = [];
     let clipRule: "nonzero" | "evenodd" | undefined;
-    defs.map(d => resolveClipPath(d.trim()))
-      .forEach(x => {
-        if (typeof x === "string") {
-          let xlc = x.toLowerCase();
-          if (xlc === "nonzero" || xlc === "evenodd") {
-            clipRule = xlc;
-          } else errs.push(x)
+    // Resolve definitions
+    for (let i = 0; i < defs.length; i++) {
+      const def  = defs[i];
+      const matchClipRule = def.match(/^(clip-)?rule[\s]*[,;\s][\s]*(nonzero|evenodd)$/i);
+      if (matchClipRule) {
+        let xlc = matchClipRule[2].toLowerCase();
+        if (xlc === "nonzero" || xlc === "evenodd") {
+          clipRule = xlc;
+        } else {
+          errs.push(`Clip-Rule ${matchClipRule[2]} not supported!`);
         }
-        else models.push(...x);
-      });
-    if (models.length > 0) {
-      const paths = models.map(m => HuatuPath.model2Path(m))
-        .filter(p => p !== undefined) as ISvgPath[];
-      if (paths.length !== models.length) this.warnings.push(`Some Model to path conversion failed when resolving clip path '${name}'!`);
-      if (paths.length < 1) errs.push(`No Path resolved for clip '${name}'!`);
-      const clip = new HuatuClipPath(name, paths);
-      if (clipRule) clip.clipRule = clipRule;
-      this.defines.push(clip);
-      this.clips.push(clip);
+        continue;
+      }
+      const tryPath = this.paths.find(p => p.name === def);
+      if (tryPath) {
+        if (tryPath.model) models.push(tryPath.model);
+        else if (tryPath.path) paths.push(tryPath.path);
+        continue;
+      }
+      let tryPathSeries = this.pathSeries.find(ps => ps.name === def);
+      if (tryPathSeries && tryPathSeries.models.length > 0) {
+        models.push(...tryPathSeries.models);
+        continue;
+      }
+      let tryShape = this.resolveShapeDef(def);
+      if (typeof tryShape === "string") {
+        errs.push(tryShape);
+      }
+      else {
+        models.push(tryShape);
+      }
     }
+    // Handle models resolved
+    if (models.length > 0) {
+      const pms = models.map(m => HuatuPath.model2Path(m))
+        .filter(p => p !== undefined) as ISvgPath[];
+      if (pms.length !== models.length) this.warnings.push(`Some Model to path conversion failed when resolving clip path '${name}'!`);
+      if (pms.length < 1) errs.push(`No Path resolved for clip '${name}'!`);
+      paths.push(...pms);
+    }
+    const clip = new HuatuClipPath(name, paths);
+    if (clipRule) clip.clipRule = clipRule;
+    this.defines.push(clip);
+    this.clips.push(clip);
     // Return the errors when resolving
     return errs;
   }

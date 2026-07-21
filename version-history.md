@@ -2,6 +2,15 @@
 
 Following notes will mark why the library is versioned up:
 
+## V1.4.5
+
+- Export all th *.d.ts
+
+## V1.4.4
+
+- A little fix for clip-path resolving
+- Make the `markSize` config work for label and `angleMark`
+
 ## V1.4.3
 
 - Remove the eval() usage in code

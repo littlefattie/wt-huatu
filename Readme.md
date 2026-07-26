@@ -62,6 +62,9 @@ There are more examples in the Editor [https://littlefattie.github.io/wt-huatu-e
 
 And there are some documents presented at [https://littlefattie.github.io/wt-huatu-doc/](https://littlefattie.github.io/wt-huatu-doc/) (简体中文/English). The documents are not fully covering all the features of the lib, it is a continuing process, as we add more, it will be updated.
 
+One electron-based desktop editor has been developed, please download it from the release menu, or via this direct link 👉
+[https://github.com/littlefattie/wt-huatu/releases/download/v1.4.5/wt-huatu-editor-1.4.8.Setup.exe](https://github.com/littlefattie/wt-huatu/releases/download/v1.4.5/wt-huatu-editor-1.4.8.Setup.exe)
+
 You can use it as a npm package.
 
 Install by

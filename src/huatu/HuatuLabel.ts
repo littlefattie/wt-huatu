@@ -165,8 +165,8 @@ export class HuatuLabel implements IHuatuLabel, IHuatuFinalDraw {
     if (this.bold) styles.push([`font-weight`, `bold`]);
     if (this.italic) styles.push([`font-style`, `italic`]);
     if (this.textAlign) styles.push([`text-align`, this.textAlign]);
-    if (this.vAlign === "top") styles.push([`margin-top`, `0`]);
-    else if (this.vAlign === "bottom") styles.push([`margin-bottom`, `0`]);
+    if (this.vAlign === "top") styles.push([`margin-top`, `0.12em`]);
+    else if (this.vAlign === "bottom") styles.push([`margin-bottom`, `0.12em`]);
     if (this.addLine) {
       const decorLine = HuatuLabelStyle.getDecorationLine(this.addLine);
       if (decorLine) styles.push([`text-decoration`, decorLine]);

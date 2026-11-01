@@ -90,9 +90,9 @@ export class HuatuLabelStyle implements IHuatuLabelStyle, IHuatuCss {
       attrs.push([`text-align`, this.textAlign]);
     }
     if (this.vAlign === "top") {
-      attrs.push([`margin-top`, `0`]);
+      attrs.push([`margin-top`, `0.12em`]);
     } else if (this.vAlign === "bottom") {
-      attrs.push([`margin-bottom`, `0`]);
+      attrs.push([`margin-bottom`, `0.12em`]);
     }
     if (this.lineHeight) {
       attrs.push([`line-height`, `${this.lineHeight}`]);
